@@ -1,38 +1,26 @@
+import { useEffect, useState } from "react"
+import { getSchedule } from "../data/googleSheets"
+
+
 function Schedule() {
 
-
-  const events = [
-
-    {
-      name: "J.S. Clark Open",
-      date: "May 10, 2026",
-      course: "J.S. Clark Golf Course",
-      status: "Completed",
-      winner: "Team A",
-      teeTime: "N/A"
-    },
+  const [events, setEvents] = useState([])
 
 
-    {
-      name: "Horses Tour Summer Classic",
-      date: "July 18, 2026",
-      course: "TBD",
-      status: "Upcoming",
-      winner: "N/A",
-      teeTime: "N/A"
-    },
+  useEffect(() => {
 
+    async function loadSchedule() {
 
-    {
-      name: "Horses Tour Championship",
-      date: "October 4, 2026",
-      course: "TBD",
-      status: "Upcoming",
-      winner: "N/A",
-      teeTime: "N/A"
+      const data = await getSchedule()
+
+      setEvents(data)
+
     }
 
-  ]
+    loadSchedule()
+
+  }, [])
+
 
 
   return (
@@ -52,34 +40,16 @@ function Schedule() {
 
           <tr>
 
-            <th>
-              Event
-            </th>
-
-            <th>
-              Date
-            </th>
-
-            <th>
-              Course
-            </th>
-
-            <th>
-              Status
-            </th>
-
-            <th>
-              Winner
-            </th>
-
-            <th>
-              Tee Time
-            </th>
+            <th>Event</th>
+            <th>Date</th>
+            <th>Course</th>
+            <th>Status</th>
+            <th>Winner</th>
+            <th>Tee Times</th>
 
           </tr>
 
         </thead>
-
 
 
         <tbody>
@@ -91,32 +61,32 @@ function Schedule() {
 
 
               <td>
-                {event.name}
+                {event["Event Name"]}
               </td>
 
 
               <td>
-                {event.date}
+                {event.Date}
               </td>
 
 
               <td>
-                {event.course}
+                {event.Course}
               </td>
 
 
               <td>
-                {event.status}
+                {event.Status}
               </td>
 
 
               <td>
-                {event.winner}
+                {event.Winner}
               </td>
 
 
               <td>
-                {event.teeTime}
+                {event["Tee Times"]}
               </td>
 
 

@@ -1,5 +1,6 @@
 import axios from "axios"
 
+
 // ----------------------
 // PLAYERS
 // ----------------------
@@ -17,6 +18,14 @@ const RANKINGS_URL =
 
 
 // ----------------------
+// SCHEDULE
+// ----------------------
+
+const SCHEDULE_URL =
+"https://docs.google.com/spreadsheets/d/e/2PACX-1vSaRzObvMpmjQNGdhCQZUoiwazKtbfL2t5tnf7n7nr34NvQQYrL9_dvNEJ_U1s0W5FMA_6V9N9S0GdY/pub?gid=102645129&single=true&output=csv"
+
+
+// ----------------------
 // Generic CSV Reader
 // ----------------------
 
@@ -28,9 +37,11 @@ async function readCSV(url) {
     .trim()
     .split("\n")
 
+
   const headers = rows[0]
     .split(",")
     .map(header => header.trim())
+
 
   return rows.slice(1).map(row => {
 
@@ -38,11 +49,13 @@ async function readCSV(url) {
 
     let object = {}
 
+
     headers.forEach((header, index) => {
 
       object[header] = values[index]?.trim() || ""
 
     })
+
 
     return object
 
@@ -52,7 +65,7 @@ async function readCSV(url) {
 
 
 // ----------------------
-// PLAYERS
+// GET PLAYERS
 // ----------------------
 
 export async function getPlayers() {
@@ -63,11 +76,22 @@ export async function getPlayers() {
 
 
 // ----------------------
-// RANKINGS
+// GET RANKINGS
 // ----------------------
 
 export async function getRankings() {
 
   return await readCSV(RANKINGS_URL)
+
+}
+
+
+// ----------------------
+// GET SCHEDULE
+// ----------------------
+
+export async function getSchedule() {
+
+  return await readCSV(SCHEDULE_URL)
 
 }
