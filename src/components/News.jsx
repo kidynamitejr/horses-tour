@@ -29,7 +29,7 @@ function News() {
   if (loading) {
     return (
       <section className="card">
-        <h2>📰 Latest News</h2>
+        <h2>Latest News</h2>
         <p>Loading...</p>
       </section>
     )
@@ -37,7 +37,7 @@ function News() {
 
   return (
     <section className="card">
-      <h2>📰 Latest News</h2>
+      <h2>Latest News</h2>
 
       <div className="news-grid">
         {articles.map((article) => (

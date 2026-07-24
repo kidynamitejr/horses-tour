@@ -28,7 +28,7 @@ function Events() {
     <section className="card">
 
       <h2>
-        🏆 Tour Events
+        Tour Events
       </h2>
 
 

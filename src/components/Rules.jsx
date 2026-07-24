@@ -1,26 +1,55 @@
+import { useEffect, useState } from "react"
+import { getRules } from "../data/googleSheets"
+
 function Rules() {
 
-  const rules = [
+  const [rules, setRules] = useState([])
+  const [loading, setLoading] = useState(true)
 
-    "All teams must follow official Horses Tour scramble rules.",
+  useEffect(() => {
 
-    "Each player must track and report their contributions toward the team's score.",
+    async function loadRules() {
 
-    "Teams must accurately record scores after every event.",
+      try {
 
-    "Club length forgiveness rules will be determined before each season.",
+        const data = await getRules()
 
-    "Tournament results are final once verified by tour officials."
+        const sorted = data.sort(
+          (a, b) => Number(a["Rule #"]) - Number(b["Rule #"])
+        )
 
-  ]
+        setRules(sorted)
 
+      } catch (error) {
+
+        console.error("Rules Error:", error)
+
+      } finally {
+
+        setLoading(false)
+
+      }
+
+    }
+
+    loadRules()
+
+  }, [])
+
+  const categories = []
+
+  rules.forEach((rule) => {
+    if (!categories.includes(rule.Category)) {
+      categories.push(rule.Category)
+    }
+  })
 
   return (
 
     <section className="card">
 
       <h2>
-        📜 Rules & Rewards
+        Rules & Rewards
       </h2>
 
 
@@ -28,22 +57,43 @@ function Rules() {
         Tour Rules
       </h3>
 
+      {loading && (
+        <p>Loading rules...</p>
+      )}
 
-      <ul>
+      {!loading && categories.map((category) => (
 
-        {rules.map((rule, index) => (
+        <div key={category} className="rules-category">
 
-          <li key={index}>
-            {rule}
-          </li>
+          <h4>
+            {category}
+          </h4>
 
-        ))}
+          <ul className="rules-list">
 
-      </ul>
+            {rules
+              .filter((rule) => rule.Category === category)
+              .map((rule) => (
+                <li key={rule["Rule #"]} className="rules-list-item">
+                  <span className="rule-number">
+                    {rule["Rule #"]}.
+                  </span>
+
+                  <span>
+                    {rule.Rule}
+                  </span>
+                </li>
+              ))}
+
+          </ul>
+
+        </div>
+
+      ))}
 
 
       <h3>
-        🏆 Rewards & Records
+        Rewards & Records
       </h3>
 
 

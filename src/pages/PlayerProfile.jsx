@@ -1,9 +1,19 @@
 import { useParams } from "react-router-dom"
 import { useEffect, useState } from "react"
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts"
 
 import {
   getPlayers,
-  getPlayerStats
+  getPlayerStats,
+  getPlayerHistory
 } from "../data/googleSheets"
 
 function PlayerProfile() {
@@ -11,6 +21,7 @@ function PlayerProfile() {
 
   const [player, setPlayer] = useState(null)
   const [stats, setStats] = useState(null)
+  const [history, setHistory] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -18,6 +29,7 @@ function PlayerProfile() {
       try {
         const players = await getPlayers()
         const playerStats = await getPlayerStats()
+        const playerHistory = await getPlayerHistory()
 
         const foundPlayer = players.find(
           (p) =>
@@ -30,11 +42,21 @@ function PlayerProfile() {
         if (foundPlayer) {
           const foundStats = playerStats.find(
             (s) =>
-              String(s["Player ID"]).trim() ===
-              String(foundPlayer["Player ID"]).trim()
+              s.Player.trim().toLowerCase() ===
+              foundPlayer.Name.trim().toLowerCase()
           )
 
           setStats(foundStats || null)
+
+          const foundHistory = playerHistory
+            .filter(
+              (h) =>
+                h.Player.trim().toLowerCase() ===
+                foundPlayer.Name.trim().toLowerCase()
+            )
+            .sort((a, b) => Number(a["Event ID"]) - Number(b["Event ID"]))
+
+          setHistory(foundHistory)
         }
       } catch (error) {
         console.error("Player Profile Error:", error)
@@ -139,6 +161,46 @@ function PlayerProfile() {
           </div>
         </div>
       </section>
+
+      {history.length > 0 && (
+        <section className="card">
+          <h2>Average Points Over Time</h2>
+
+          <ResponsiveContainer width="100%" height={320}>
+            <LineChart
+              data={history.map((h) => ({
+                tournament: `${h["Event Name"]} (${h.Date})`,
+                averagePoints: parseFloat(h["Average Points"]) || 0,
+              }))}
+              margin={{ top: 10, right: 20, left: 0, bottom: 60 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+
+              <XAxis
+                dataKey="tournament"
+                angle={-25}
+                textAnchor="end"
+                interval={0}
+                height={70}
+                tick={{ fontSize: 12 }}
+              />
+
+              <YAxis />
+
+              <Tooltip />
+
+              <Line
+                type="monotone"
+                dataKey="averagePoints"
+                name="Average Points"
+                stroke="#003b5c"
+                strokeWidth={2}
+                dot={{ r: 4 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </section>
+      )}
     </>
   )
 }

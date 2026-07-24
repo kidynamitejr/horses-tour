@@ -29,7 +29,7 @@ function Schedule() {
 
 
       <h2>
-        📅 Tour Schedule
+        Tour Schedule
       </h2>
 
 

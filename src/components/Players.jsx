@@ -21,7 +21,7 @@ function Players() {
     <section className="card">
 
       <h2>
-        👤 Players
+        Players
       </h2>
 
       <div className="player-grid">

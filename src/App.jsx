@@ -15,6 +15,7 @@ import NewsPage from "./pages/NewsPage"
 import PastMatchesPage from "./pages/PastMatchesPage"
 import RulesPage from "./pages/RulesPage"
 import PlayerProfile from "./pages/PlayerProfile"
+import ArticlePage from "./pages/ArticlePage"
 
 function Layout() {
   const location = useLocation()
@@ -63,7 +64,10 @@ function Layout() {
     },
   }
 
-  const currentHero = heroData[location.pathname] || heroData["/"]
+  const currentHero =
+    heroData[location.pathname] ||
+    (location.pathname.startsWith("/news/") && heroData["/news"]) ||
+    heroData["/"]
 
   return (
     <div className="website">
@@ -92,6 +96,8 @@ function Layout() {
 
           <Route path="/news" element={<NewsPage />} />
 
+          <Route path="/news/:id" element={<ArticlePage />} />
+
           <Route path="/past-matches" element={<PastMatchesPage />} />
 
           <Route path="/rules" element={<RulesPage />} />
@@ -112,7 +118,7 @@ function Layout() {
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Layout />
     </BrowserRouter>
   )

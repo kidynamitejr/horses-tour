@@ -31,7 +31,7 @@ function PastMatches() {
 
 
       <h2>
-        🏆 Past Matches
+        Past Matches
       </h2>
 
 
@@ -63,17 +63,17 @@ function PastMatches() {
 
 
           <p>
-            🥇 1st: {match.first}
+            1st: {match.first}
           </p>
 
 
           <p>
-            🥈 2nd: {match.second}
+            2nd: {match.second}
           </p>
 
 
           <p>
-            🥉 3rd: {match.third}
+            3rd: {match.third}
           </p>
 
 

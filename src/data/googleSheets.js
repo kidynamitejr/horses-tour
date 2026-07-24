@@ -22,49 +22,75 @@ const PLAYER_STATS_URL =
 const NEWS_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vSaRzObvMpmjQNGdhCQZUoiwazKtbfL2t5tnf7n7nr34NvQQYrL9_dvNEJ_U1s0W5FMA_6V9N9S0GdY/pub?gid=1649176247&single=true&output=csv"
 
+const PLAYER_HISTORY_URL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vSaRzObvMpmjQNGdhCQZUoiwazKtbfL2t5tnf7n7nr34NvQQYrL9_dvNEJ_U1s0W5FMA_6V9N9S0GdY/pub?gid=2001911152&single=true&output=csv"
+
+const RULES_URL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vSaRzObvMpmjQNGdhCQZUoiwazKtbfL2t5tnf7n7nr34NvQQYrL9_dvNEJ_U1s0W5FMA_6V9N9S0GdY/pub?gid=1947708801&single=true&output=csv"
+
 // ==============================
 // CSV PARSER
 // ==============================
+// Parses the whole CSV body at once (rather than splitting by newline
+// first) so quoted fields containing literal newlines parse correctly.
 
-function parseCSVLine(line) {
+function parseCSV(text) {
 
-  const result = []
-  let current = ""
+  const rows = []
+  let row = []
+  let field = ""
   let insideQuotes = false
 
-  for (let i = 0; i < line.length; i++) {
+  for (let i = 0; i < text.length; i++) {
 
-    const char = line[i]
+    const char = text[i]
+    const next = text[i + 1]
 
-    if (char === '"') {
+    if (insideQuotes) {
 
-      if (insideQuotes && line[i + 1] === '"') {
-
-        current += '"'
+      if (char === '"' && next === '"') {
+        field += '"'
         i++
-
+      } else if (char === '"') {
+        insideQuotes = false
       } else {
-
-        insideQuotes = !insideQuotes
-
+        field += char
       }
 
-    } else if (char === "," && !insideQuotes) {
+    } else if (char === '"') {
 
-      result.push(current.trim())
-      current = ""
+      insideQuotes = true
+
+    } else if (char === ",") {
+
+      row.push(field.trim())
+      field = ""
+
+    } else if (char === "\n") {
+
+      row.push(field.trim())
+      rows.push(row)
+      row = []
+      field = ""
+
+    } else if (char === "\r") {
+
+      // skip
 
     } else {
 
-      current += char
+      field += char
 
     }
 
   }
 
-  result.push(current.trim())
+  if (field.length > 0 || row.length > 0) {
+    row.push(field.trim())
+    rows.push(row)
+  }
 
-  return result
+  return rows
 
 }
 
@@ -76,18 +102,13 @@ async function readCSV(url) {
 
   const response = await axios.get(url)
 
-  const rows = response.data
-    .replace(/\r/g, "")
-    .trim()
-    .split("\n")
+  const rows = parseCSV(response.data.trim())
 
   if (rows.length === 0) return []
 
-  const headers = parseCSVLine(rows[0])
+  const headers = rows[0]
 
-  return rows.slice(1).map(row => {
-
-    const values = parseCSVLine(row)
+  return rows.slice(1).map(values => {
 
     const obj = {}
 
@@ -129,4 +150,12 @@ export async function getEvents() {
 
 export async function getNews() {
   return await readCSV(NEWS_URL)
+}
+
+export async function getPlayerHistory() {
+  return await readCSV(PLAYER_HISTORY_URL)
+}
+
+export async function getRules() {
+  return await readCSV(RULES_URL)
 }

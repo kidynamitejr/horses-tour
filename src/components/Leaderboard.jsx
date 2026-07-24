@@ -1,15 +1,28 @@
 import { useEffect, useState } from "react"
-import { getRankings } from "../data/googleSheets"
+import { getRankings, getPlayers } from "../data/googleSheets"
 
 function Leaderboard() {
 
   const [players, setPlayers] = useState([])
+  const [playerIds, setPlayerIds] = useState({})
 
   useEffect(() => {
 
     getRankings().then((data) => {
 
       setPlayers(data)
+
+    })
+
+    getPlayers().then((data) => {
+
+      const idsByName = {}
+
+      data.forEach((player) => {
+        idsByName[player.Name] = player["Player ID"]
+      })
+
+      setPlayerIds(idsByName)
 
     })
 
@@ -20,7 +33,7 @@ function Leaderboard() {
     <section className="card">
 
       <h2>
-        🏆 Overall Leaderboard
+        Overall Leaderboard
       </h2>
 
       <div className="table-scroll">
@@ -50,17 +63,26 @@ function Leaderboard() {
 
               <td>
 
-                {player.Rank === "1" && "🥇 "}
-                {player.Rank === "2" && "🥈 "}
-                {player.Rank === "3" && "🥉 "}
-
                 {player.Rank}
 
               </td>
 
               <td>
 
-                {player.Player}
+                <div className="leaderboard-player">
+
+                  <img
+                    src={`${import.meta.env.BASE_URL}images/players/${playerIds[player.Player]}.jpg`}
+                    alt={player.Player}
+                    className="leaderboard-avatar"
+                    onError={(e) => {
+                      e.target.src = `${import.meta.env.BASE_URL}images/players/default.jpg`
+                    }}
+                  />
+
+                  {player.Player}
+
+                </div>
 
               </td>
 

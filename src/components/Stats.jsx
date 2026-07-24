@@ -42,7 +42,7 @@ function Stats() {
 
 
       <h2>
-        📊 Tour Statistics
+        Tour Statistics
       </h2>
 
 

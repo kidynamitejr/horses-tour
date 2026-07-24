@@ -36,7 +36,7 @@ function Gallery() {
 
 
       <h2>
-        📸 Gallery
+        Gallery
       </h2>
 
 
