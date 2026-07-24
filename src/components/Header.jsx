@@ -1,32 +1,21 @@
 import { Link } from "react-router-dom"
 
-
 function Header() {
-
   return (
-
     <header className="header">
-
-
       <div className="logo-container">
-
         <img
-          src="/images/logo/horses-tour-logo.png"
+          src={`${import.meta.env.BASE_URL}images/logo/horses-tour-logo.png`}
           alt="Horses Tour Logo"
           className="logo-image"
         />
 
-
         <span className="logo-text">
           Horses Tour
         </span>
-
-
       </div>
 
-
       <nav className="nav">
-
         <Link to="/">
           Home
         </Link>
@@ -66,15 +55,9 @@ function Header() {
         <Link to="/rules">
           Rules
         </Link>
-
       </nav>
-
-
     </header>
-
   )
-
 }
-
 
 export default Header

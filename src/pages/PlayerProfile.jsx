@@ -7,7 +7,6 @@ import {
 } from "../data/googleSheets"
 
 function PlayerProfile() {
-
   const { name } = useParams()
 
   const [player, setPlayer] = useState(null)
@@ -15,56 +14,36 @@ function PlayerProfile() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-
     async function loadPlayer() {
-
       try {
-
         const players = await getPlayers()
         const playerStats = await getPlayerStats()
 
-        console.log("Players:", players)
-        console.log("First player:", players[0])
-        console.log("Looking for ID:", name)
-
         const foundPlayer = players.find(
-          p =>
+          (p) =>
             String(p["Player ID"]).trim() ===
             String(name).trim()
         )
 
-        console.log("Found player:", foundPlayer)
-
         setPlayer(foundPlayer || null)
 
         if (foundPlayer) {
-
           const foundStats = playerStats.find(
-            s =>
+            (s) =>
               String(s["Player ID"]).trim() ===
               String(foundPlayer["Player ID"]).trim()
           )
 
-          console.log("Found stats:", foundStats)
-
           setStats(foundStats || null)
-
         }
-
       } catch (error) {
-
         console.error("Player Profile Error:", error)
-
       } finally {
-
         setLoading(false)
-
       }
-
     }
 
     loadPlayer()
-
   }, [name])
 
   if (loading) {
@@ -77,36 +56,29 @@ function PlayerProfile() {
 
   return (
     <>
-
       <section className="player-profile-header">
-
         <img
-          src={`/images/players/${player["Player ID"]}.jpg`}
+          src={`${import.meta.env.BASE_URL}images/players/${player["Player ID"]}.jpg`}
           alt={player.Name}
           className="profile-image"
           onError={(e) => {
-            e.target.src = "/images/players/default.jpg"
+            e.target.src = `${import.meta.env.BASE_URL}images/players/default.jpg`
           }}
         />
 
         <div>
-
           <h1>{player.Name}</h1>
 
           <p>Joined: {player["Join Date"]}</p>
 
           <p>Status: {player.Active}</p>
-
         </div>
-
       </section>
 
       <section className="card">
-
         <h2>Career Statistics</h2>
 
         <div className="stats-grid">
-
           <div className="stat-card">
             <h3>Rank</h3>
             <p>{stats?.Rank || "-"}</p>
@@ -165,14 +137,10 @@ function PlayerProfile() {
             <h3>Worst Tournament</h3>
             <p>{stats?.["Worst Tournament"] || "-"}</p>
           </div>
-
         </div>
-
       </section>
-
     </>
   )
-
 }
 
 export default PlayerProfile
