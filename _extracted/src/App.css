@@ -1,0 +1,408 @@
+/* GLOBAL */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #cfd4db;
+  color: #1c1c1c;
+}
+
+.website {
+  min-height: 100vh;
+}
+
+/* HEADER */
+
+.header {
+  height: 80px;
+  background: #003b5c;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.logo-image {
+  height: 55px;
+  width: 55px;
+  object-fit: contain;
+}
+
+.logo-text {
+  font-size: 24px;
+  font-weight: bold;
+  color: white;
+}
+
+/* NAVIGATION */
+
+.nav {
+  display: flex;
+  gap: 25px;
+}
+
+.nav a {
+  text-decoration: none;
+  color: white;
+  font-weight: 600;
+  font-size: 15px;
+  transition: color .2s;
+}
+
+.nav a:hover {
+  color: #8fd3ff;
+}
+
+/* HERO */
+
+.hero-section {
+  height: 416px;
+  width: 100%;
+  background-image:
+    linear-gradient(rgba(0,59,92,.75), rgba(0,59,92,.75)),
+    url("/images/backgrounds/golf-hero.jpg");
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-content {
+  text-align: center;
+  color: white;
+}
+
+.hero-content h1 {
+  font-size: 56px;
+  margin: 0 0 15px;
+  letter-spacing: 3px;
+}
+
+.hero-content p {
+  font-size: 20px;
+  max-width: 700px;
+}
+
+.main {
+  max-width: 1300px;
+  margin: auto;
+  padding: 30px;
+}
+
+.hero {
+  background: white;
+  padding: 45px;
+  border-radius: 16px;
+  margin-bottom: 35px;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0,0,0,.08);
+}
+
+.hero h1 {
+  color: #003b5c;
+  font-size: 42px;
+}
+
+.hero p {
+  font-size: 18px;
+}
+
+/* CARDS */
+
+.card {
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  margin-bottom: 35px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.08);
+}
+
+.card h2 {
+  margin-top: 0;
+  color: #003b5c;
+}
+
+/* TABLES */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  background: #003b5c;
+  color: white;
+  padding: 14px;
+}
+
+td {
+  padding: 14px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+tr:hover {
+  background: #f6fbff;
+}
+
+/* PLAYER CARDS */
+
+.player-grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 25px;
+}
+
+.player-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.player-card {
+  background: white;
+  border-radius: 16px;
+  padding: 28px;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0,0,0,.08);
+  transition: .25s;
+}
+
+.player-card:hover {
+  transform: translateY(-8px);
+}
+
+.player-headshot {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 15px;
+}
+
+/* PROFILE */
+
+.player-profile-header {
+  display: flex;
+  gap: 30px;
+  align-items: center;
+  background: white;
+  border-radius: 16px;
+  padding: 35px;
+  margin-bottom: 35px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.08);
+}
+
+.profile-image {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* STATS */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 25px;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 16px;
+  padding: 25px;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0,0,0,.06);
+}
+
+.stat-card p {
+  font-size: 26px;
+  font-weight: bold;
+}
+
+/* DASHBOARD */
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(260px,1fr));
+  gap: 28px;
+  margin-bottom: 35px;
+}
+
+.dashboard-card {
+  position: relative;
+  background: white;
+  border-radius: 18px;
+  padding: 30px;
+  border: 1px solid #e6e6e6;
+  box-shadow: 0 10px 30px rgba(0,0,0,.06);
+  transition: .25s;
+  overflow: hidden;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 18px 42px rgba(0,0,0,.12);
+}
+
+.dashboard-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 5px;
+  width: 100%;
+}
+
+.dashboard-card.leader::before { background:#c9a227; }
+.dashboard-card.event::before { background:#2d6a4f; }
+.dashboard-card.players::before { background:#003b5c; }
+.dashboard-card.events::before { background:#666; }
+
+.dashboard-card h2 {
+  margin: 0;
+  color: #7a7a7a;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 13px;
+}
+
+.dashboard-card h3 {
+  margin: 18px 0 10px;
+  color: #003b5c;
+  font-size: 34px;
+  line-height: 1.1;
+}
+
+.dashboard-card p {
+  margin: 6px 0;
+  color: #666;
+  font-size: 16px;
+}
+
+/* FEATURED PLAYER */
+
+.featured-player-content{
+  display:flex;
+  gap:30px;
+  align-items:center;
+}
+
+.featured-player-image{
+  width:180px;
+  height:180px;
+  border-radius:50%;
+  object-fit:cover;
+}
+
+.button{
+  display:inline-block;
+  margin-top:15px;
+  background:#003b5c;
+  color:#fff;
+  text-decoration:none;
+  padding:12px 22px;
+  border-radius:8px;
+  font-weight:bold;
+}
+
+.button:hover{
+  background:#02517f;
+}
+
+/* NEWS */
+
+.news-grid {
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:25px;
+}
+
+.news-card{
+  background:white;
+  border-radius:16px;
+  overflow:hidden;
+  box-shadow:0 8px 24px rgba(0,0,0,.08);
+}
+
+.news-card img{
+  width:100%;
+  height:220px;
+  object-fit:cover;
+}
+
+/* GALLERY */
+
+.gallery-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:20px;
+}
+
+.gallery-card{
+  background:white;
+  border-radius:16px;
+  overflow:hidden;
+}
+
+.gallery-card img{
+  width:100%;
+  height:200px;
+  object-fit:cover;
+}
+
+/* FOOTER */
+
+.footer{
+  background:#003b5c;
+  color:white;
+  text-align:center;
+  padding:25px;
+}
+
+/* MOBILE */
+
+@media(max-width:900px){
+
+  .header{
+    flex-direction:column;
+    height:auto;
+    padding:20px;
+  }
+
+  .nav{
+    flex-wrap:wrap;
+    justify-content:center;
+    margin-top:15px;
+  }
+
+  .player-grid,
+  .stats-grid,
+  .news-grid,
+  .gallery-grid{
+    grid-template-columns:1fr;
+  }
+
+  .player-profile-header,
+  .featured-player-content{
+    flex-direction:column;
+    text-align:center;
+  }
+
+  .hero-content h1{
+    font-size:38px;
+  }
+}
