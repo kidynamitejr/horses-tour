@@ -30,7 +30,7 @@ function Home() {
         <div className="featured-player-content">
 
           <img
-            src="/images/players/1.jpg"
+            src={`${import.meta.env.BASE_URL}images/players/1.jpg`}
             alt="Featured Player"
             className="featured-player-image"
           />

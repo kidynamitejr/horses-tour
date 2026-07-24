@@ -32,6 +32,8 @@ function Events() {
       </h2>
 
 
+      <div className="table-scroll">
+
       <table className="leaderboard-table">
 
         <thead>
@@ -80,6 +82,8 @@ function Events() {
         </tbody>
 
       </table>
+
+      </div>
 
     </section>
 

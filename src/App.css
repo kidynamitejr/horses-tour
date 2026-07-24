@@ -71,9 +71,6 @@ body {
 .hero-section {
   height: 416px;
   width: 100%;
-  background-image:
-    linear-gradient(rgba(0,59,92,.75), rgba(0,59,92,.75)),
-    url("/images/backgrounds/golf-hero.jpg");
   background-size: cover;
   background-position: center;
   display: flex;
@@ -138,8 +135,15 @@ body {
 
 /* TABLES */
 
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 table {
   width: 100%;
+  min-width: 600px;
   border-collapse: collapse;
 }
 
@@ -404,5 +408,64 @@ tr:hover {
 
   .hero-content h1{
     font-size:38px;
+  }
+}
+
+@media(max-width:600px){
+
+  .main{
+    padding:15px;
+  }
+
+  .card{
+    padding:18px;
+  }
+
+  .hero{
+    padding:25px 18px;
+  }
+
+  .hero h1{
+    font-size:30px;
+  }
+
+  th, td{
+    padding:8px;
+    font-size:13px;
+  }
+
+  .player-card{
+    padding:16px;
+  }
+
+  .player-headshot{
+    width:80px;
+    height:80px;
+  }
+
+  .stat-card{
+    padding:16px;
+  }
+
+  .stat-card p{
+    font-size:20px;
+  }
+
+  .dashboard-card{
+    padding:20px;
+  }
+
+  .dashboard-card h3{
+    font-size:26px;
+  }
+
+  .player-profile-header{
+    padding:20px;
+  }
+
+  .profile-image,
+  .featured-player-image{
+    width:120px;
+    height:120px;
   }
 }

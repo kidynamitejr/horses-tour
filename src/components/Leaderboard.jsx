@@ -23,6 +23,8 @@ function Leaderboard() {
         🏆 Overall Leaderboard
       </h2>
 
+      <div className="table-scroll">
+
       <table className="leaderboard-table">
 
         <thead>
@@ -105,6 +107,8 @@ function Leaderboard() {
         </tbody>
 
       </table>
+
+      </div>
 
     </section>
 

@@ -33,6 +33,8 @@ function Schedule() {
       </h2>
 
 
+      <div className="table-scroll">
+
       <table className="leaderboard-table">
 
 
@@ -99,6 +101,8 @@ function Schedule() {
 
 
       </table>
+
+      </div>
 
 
     </section>
