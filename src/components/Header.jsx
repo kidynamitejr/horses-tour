@@ -10,7 +10,6 @@ function Header() {
 
       <div className="logo-container">
 
-
         <img
           src="/images/logo/horses-tour-logo.png"
           alt="Horses Tour Logo"
@@ -26,54 +25,47 @@ function Header() {
       </div>
 
 
-
       <nav className="nav">
-
 
         <Link to="/">
           Home
         </Link>
 
-
         <Link to="/leaderboard">
           Leaderboard
         </Link>
-
 
         <Link to="/schedule">
           Schedule
         </Link>
 
+        <Link to="/events">
+          Events
+        </Link>
 
         <Link to="/players">
           Players
         </Link>
 
-
         <Link to="/stats">
           Stats
         </Link>
-
 
         <Link to="/gallery">
           Gallery
         </Link>
 
-
         <Link to="/news">
           News
         </Link>
-
 
         <Link to="/past-matches">
           Past Matches
         </Link>
 
-
         <Link to="/rules">
           Rules
         </Link>
-
 
       </nav>
 
