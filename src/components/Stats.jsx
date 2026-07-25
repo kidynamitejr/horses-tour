@@ -1,22 +1,67 @@
 import { useEffect, useState } from "react"
-import { getTourRecords, getPlayerStats } from "../data/googleSheets"
+import { getTourRecords, getPlayerStats, getMatchResults } from "../data/googleSheets"
 
-function getLeaders(players, field) {
+function getLeadersFromEntries(entries) {
 
-  const valid = players
-    .map((p) => ({ name: p.Player, value: parseFloat(p[field]) }))
-    .filter((p) => !isNaN(p.value))
+  const valid = entries.filter((e) => !isNaN(e.value))
 
   if (valid.length === 0) {
     return { value: null, names: [] }
   }
 
-  const max = Math.max(...valid.map((p) => p.value))
+  const max = Math.max(...valid.map((e) => e.value))
+
+  if (max === 0) {
+    return { value: 0, names: [] }
+  }
+
   const names = valid
-    .filter((p) => p.value === max)
-    .map((p) => p.name)
+    .filter((e) => e.value === max)
+    .map((e) => e.name)
 
   return { value: max, names }
+
+}
+
+function getLeaders(players, field) {
+  return getLeadersFromEntries(
+    players.map((p) => ({ name: p.Player, value: parseFloat(p[field]) }))
+  )
+}
+
+// Wins/Runner Ups/Top 3 are computed from Match Results (not the
+// Player Stats columns) so both teammates on a team automatically get
+// credit for their team's finish, instead of relying on a manually
+// tracked column that can miss a player.
+function getTeamRecordCounts(matchResults) {
+
+  const counts = {}
+
+  matchResults.forEach((row) => {
+
+    const finish = Number(row.Finish)
+
+    if (!finish) return
+
+    const teammates = [row["Player 1"], row["Player 2"]]
+      .map((name) => name && name.trim())
+      .filter(Boolean)
+
+    teammates.forEach((name) => {
+
+      if (!counts[name]) {
+        counts[name] = { wins: 0, runnerUps: 0, topThree: 0 }
+      }
+
+      if (finish === 1) counts[name].wins += 1
+      if (finish === 2) counts[name].runnerUps += 1
+      if (finish <= 3) counts[name].topThree += 1
+
+    })
+
+  })
+
+  return counts
 
 }
 
@@ -36,9 +81,10 @@ function Stats() {
 
       try {
 
-        const [tourRecords, playerStats] = await Promise.all([
+        const [tourRecords, playerStats, matchResults] = await Promise.all([
           getTourRecords(),
           getPlayerStats(),
+          getMatchResults(),
         ])
 
         const lowestTeamScore = tourRecords.find(
@@ -48,9 +94,21 @@ function Stats() {
         const highestSingleEvent = getLeaders(playerStats, "Highest Round Points")
         const totalPoints = getLeaders(playerStats, "Total Points")
         const averagePoints = getLeaders(playerStats, "Average Points")
-        const wins = getLeaders(playerStats, "Wins")
-        const runnerUps = getLeaders(playerStats, "Runner Ups")
-        const topThree = getLeaders(playerStats, "Top 3 Finishes")
+
+        const teamCounts = getTeamRecordCounts(matchResults)
+        const countEntries = Object.entries(teamCounts)
+
+        const wins = getLeadersFromEntries(
+          countEntries.map(([name, c]) => ({ name, value: c.wins }))
+        )
+
+        const runnerUps = getLeadersFromEntries(
+          countEntries.map(([name, c]) => ({ name, value: c.runnerUps }))
+        )
+
+        const topThree = getLeadersFromEntries(
+          countEntries.map(([name, c]) => ({ name, value: c.topThree }))
+        )
 
         const combined = []
 

@@ -349,11 +349,39 @@ tr:hover {
 }
 
 .stat-card {
+  position: relative;
   background: white;
   border-radius: 16px;
-  padding: 25px;
+  padding: 28px 22px;
   text-align: center;
   box-shadow: 0 8px 24px rgba(0,0,0,.06);
+  overflow: hidden;
+  transition: transform .25s, box-shadow .25s;
+}
+
+.stat-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 4px;
+  width: 100%;
+  background: linear-gradient(90deg, #003b5c, #2d6a4f);
+}
+
+.stat-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 36px rgba(0,0,0,.14);
+}
+
+.stat-card h3 {
+  margin: 4px 0 12px;
+  color: #3a3a3a;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-size: 13px;
+  font-family: "Lato", Arial, Helvetica, sans-serif;
+  font-weight: 700;
 }
 
 .stat-card p {
@@ -361,11 +389,17 @@ tr:hover {
   font-weight: bold;
 }
 
+.stat-card .stat-value {
+  color: #003b5c;
+  font-size: 32px;
+}
+
 .stat-card .stat-team {
   font-size: 14px;
-  font-weight: normal;
-  color: #555;
-  margin-top: 4px;
+  font-weight: 600;
+  color: #333;
+  margin-top: 6px;
+  min-height: 18px;
 }
 
 /* DASHBOARD */

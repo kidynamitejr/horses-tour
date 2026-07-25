@@ -49,7 +49,7 @@ function Rules() {
     <section className="card">
 
       <h2>
-        Rules & Rewards
+        Rules
       </h2>
 
 
@@ -90,16 +90,6 @@ function Rules() {
         </div>
 
       ))}
-
-
-      <h3>
-        Rewards & Records
-      </h3>
-
-
-      <p>
-        Season awards, records, and achievements will be displayed here.
-      </p>
 
 
     </section>

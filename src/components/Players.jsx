@@ -1,16 +1,29 @@
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
-import { getPlayers } from "../data/googleSheets"
+import { getPlayers, getPlayerStats } from "../data/googleSheets"
 
 function Players() {
 
   const [players, setPlayers] = useState([])
+  const [statsByName, setStatsByName] = useState({})
 
   useEffect(() => {
 
     getPlayers().then(data => {
 
       setPlayers(data)
+
+    })
+
+    getPlayerStats().then((data) => {
+
+      const map = {}
+
+      data.forEach((stat) => {
+        map[stat.Player.trim().toLowerCase()] = stat
+      })
+
+      setStatsByName(map)
 
     })
 
@@ -26,42 +39,48 @@ function Players() {
 
       <div className="player-grid">
 
-        {players.map((player) => (
+        {players.map((player) => {
 
-          <Link
-            key={player["Player ID"]}
-            to={`/player-profile/${player["Player ID"]}`}
-            className="player-link"
-          >
+          const stats = statsByName[player.Name.trim().toLowerCase()]
 
-            <div className="player-card">
+          return (
 
-              <img
-                src={`${import.meta.env.BASE_URL}images/players/${player["Player ID"]}.jpg`}
-                alt={player.Name}
-                className="player-headshot"
-                onError={(e) => {
-                  e.target.src = `${import.meta.env.BASE_URL}images/players/default.jpg`
-                }}
-              />
+            <Link
+              key={player["Player ID"]}
+              to={`/player-profile/${player["Player ID"]}`}
+              className="player-link"
+            >
 
-              <h3>
-                {player.Name}
-              </h3>
+              <div className="player-card">
 
-              <p>
-                Wins: {player.Wins}
-              </p>
+                <img
+                  src={`${import.meta.env.BASE_URL}images/players/${player["Player ID"]}.jpg`}
+                  alt={player.Name}
+                  className="player-headshot"
+                  onError={(e) => {
+                    e.target.src = `${import.meta.env.BASE_URL}images/players/default.jpg`
+                  }}
+                />
 
-              <p>
-                Runner Ups: {player["Runner Ups"]}
-              </p>
+                <h3>
+                  {player.Name}
+                </h3>
 
-            </div>
+                <p>
+                  Wins: {stats ? stats.Wins : "0"}
+                </p>
 
-          </Link>
+                <p>
+                  Runner Ups: {stats ? stats["Runner Ups"] : "0"}
+                </p>
 
-        ))}
+              </div>
+
+            </Link>
+
+          )
+
+        })}
 
       </div>
 

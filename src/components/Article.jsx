@@ -56,11 +56,8 @@ function Article() {
       <br />
 
       <img
-        src={`${import.meta.env.BASE_URL}images/news/${article["Article ID"]}.jpg`}
+        src={article.Image}
         alt={article.Headline}
-        onError={(e) => {
-          e.target.src = `${import.meta.env.BASE_URL}images/news/default.jpg`
-        }}
         style={{
           width: "100%",
           borderRadius: "10px",

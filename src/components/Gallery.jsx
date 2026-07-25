@@ -1,34 +1,36 @@
+import { useEffect, useState } from "react"
+import { getGallery } from "../data/googleSheets"
+
 function Gallery() {
 
+  const [photos, setPhotos] = useState([])
+  const [loading, setLoading] = useState(true)
 
-  const photos = [
+  useEffect(() => {
 
-    {
-      image: "/images/gallery/photo1.jpg",
-      title: "Tournament Start"
-    },
+    async function loadGallery() {
 
+      try {
 
-    {
-      image: "/images/gallery/photo2.jpg",
-      title: "Championship Moment"
-    },
+        const data = await getGallery()
 
+        setPhotos(data)
 
-    {
-      image: "/images/gallery/photo3.jpg",
-      title: "Team Photo"
-    },
+      } catch (error) {
 
+        console.error("Gallery Error:", error)
 
-    {
-      image: "/images/gallery/photo4.jpg",
-      title: "Trophy Presentation"
+      } finally {
+
+        setLoading(false)
+
+      }
+
     }
 
+    loadGallery()
 
-  ]
-
+  }, [])
 
   return (
 
@@ -40,27 +42,31 @@ function Gallery() {
       </h2>
 
 
+      {loading && (
+        <p>Loading gallery...</p>
+      )}
+
 
       <div className="gallery-grid">
 
 
-        {photos.map((photo) => (
+        {!loading && photos.map((photo) => (
 
 
-          <div 
+          <div
             className="gallery-card"
-            key={photo.title}
+            key={photo["Photo ID"]}
           >
 
 
             <img
-              src={photo.image}
-              alt={photo.title}
+              src={photo.Image}
+              alt={photo.Caption}
             />
 
 
             <p>
-              {photo.title}
+              {photo.Caption}
             </p>
 
 
