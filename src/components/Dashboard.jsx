@@ -5,6 +5,7 @@ import {
   getRankings,
   getSchedule,
   getEvents,
+  getContributions,
 } from "../data/googleSheets"
 
 function Dashboard() {
@@ -12,12 +13,14 @@ function Dashboard() {
   const [rankings, setRankings] = useState([])
   const [schedule, setSchedule] = useState([])
   const [events, setEvents] = useState([])
+  const [contributions, setContributions] = useState([])
 
   useEffect(() => {
     getPlayers().then(setPlayers)
     getRankings().then(setRankings)
     getSchedule().then(setSchedule)
     getEvents().then(setEvents)
+    getContributions().then(setContributions)
   }, [])
 
   const leader = rankings.length > 0 ? rankings[0] : null
@@ -45,6 +48,22 @@ function Dashboard() {
       return eventDate >= today
     })
     .sort((a, b) => new Date(a.Date) - new Date(b.Date))[0]
+
+  const nextEventTeams = nextEvent
+    ? Object.entries(
+        contributions
+          .filter((row) => row["Event ID"] === nextEvent["Event ID"])
+          .reduce((teams, row) => {
+            if (!row.Team || !row.Player) return teams
+
+            if (!teams[row.Team]) teams[row.Team] = []
+
+            teams[row.Team].push(row.Player)
+
+            return teams
+          }, {})
+      ).sort(([a], [b]) => a.localeCompare(b))
+    : []
 
   return (
     <section className="dashboard-grid">
@@ -76,6 +95,18 @@ function Dashboard() {
             <h3>{nextEvent["Event Name"]}</h3>
             <p>{nextEvent.Date}</p>
             <p>{nextEvent.Course}</p>
+
+            {nextEventTeams.length > 0 && (
+              <ul className="dashboard-team-list">
+
+                {nextEventTeams.map(([team, teamPlayers]) => (
+                  <li key={team}>
+                    <strong>Team {team}:</strong> {teamPlayers.join(" / ")}
+                  </li>
+                ))}
+
+              </ul>
+            )}
           </>
         ) : (
           <>
