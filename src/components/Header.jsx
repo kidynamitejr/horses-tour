@@ -1,8 +1,23 @@
 import { Link } from "react-router-dom"
+import { useEffect, useState } from "react"
 
 function Header() {
+  const [isScrolled, setIsScrolled] = useState(false)
+
+  useEffect(() => {
+
+    function handleScroll() {
+      setIsScrolled(window.scrollY > 10)
+    }
+
+    window.addEventListener("scroll", handleScroll)
+
+    return () => window.removeEventListener("scroll", handleScroll)
+
+  }, [])
+
   return (
-    <header className="header">
+    <header className={`header${isScrolled ? " header-scrolled" : ""}`}>
       <div className="logo-container">
         <img
           src={`${import.meta.env.BASE_URL}images/logo/horses-tour-logo.png`}

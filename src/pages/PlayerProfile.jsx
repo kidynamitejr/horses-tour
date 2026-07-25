@@ -13,7 +13,8 @@ import {
 import {
   getPlayers,
   getPlayerStats,
-  getPlayerHistory
+  getPlayerHistory,
+  getContributions
 } from "../data/googleSheets"
 
 function PlayerProfile() {
@@ -22,6 +23,8 @@ function PlayerProfile() {
   const [player, setPlayer] = useState(null)
   const [stats, setStats] = useState(null)
   const [history, setHistory] = useState([])
+  const [matchmakingPoints, setMatchmakingPoints] = useState(null)
+  const [eventsPlayed, setEventsPlayed] = useState(0)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -30,6 +33,7 @@ function PlayerProfile() {
         const players = await getPlayers()
         const playerStats = await getPlayerStats()
         const playerHistory = await getPlayerHistory()
+        const contributions = await getContributions()
 
         const foundPlayer = players.find(
           (p) =>
@@ -57,6 +61,28 @@ function PlayerProfile() {
             .sort((a, b) => Number(a["Event ID"]) - Number(b["Event ID"]))
 
           setHistory(foundHistory)
+
+          // Rows with no Contributions entered yet (a future/unplayed
+          // event that's been dragged down) still compute to 0 via
+          // formulas, so they're excluded rather than counted as played.
+          const playedRows = contributions.filter(
+            (c) =>
+              c.Player.trim().toLowerCase() ===
+                foundPlayer.Name.trim().toLowerCase() &&
+              c.Contributions
+          )
+
+          setEventsPlayed(playedRows.length)
+
+          const matchPoints = playedRows
+            .map((c) => parseFloat(c["Match Points"]))
+            .filter((points) => !isNaN(points))
+
+          setMatchmakingPoints(
+            matchPoints.length > 0
+              ? matchPoints.reduce((a, b) => a + b, 0) / matchPoints.length
+              : null
+          )
         }
       } catch (error) {
         console.error("Player Profile Error:", error)
@@ -107,22 +133,22 @@ function PlayerProfile() {
           </div>
 
           <div className="stat-card">
-            <h3>Total Points</h3>
+            <h3>Power Points</h3>
             <p>{stats?.["Total Points"] || "0"}</p>
           </div>
 
           <div className="stat-card">
-            <h3>Average Points</h3>
+            <h3>Matchmaking Points</h3>
             <p>
-              {stats?.["Average Points"] === "#DIV/0!"
-                ? "-"
-                : stats?.["Average Points"] || "-"}
+              {matchmakingPoints !== null
+                ? matchmakingPoints.toFixed(2)
+                : "-"}
             </p>
           </div>
 
           <div className="stat-card">
             <h3>Events Played</h3>
-            <p>{stats?.["Events Played"] || "0"}</p>
+            <p>{eventsPlayed}</p>
           </div>
 
           <div className="stat-card">

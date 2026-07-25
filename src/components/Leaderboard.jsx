@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react"
-import { getRankings, getPlayers } from "../data/googleSheets"
+import { getRankings, getPlayers, getContributions } from "../data/googleSheets"
 
 function Leaderboard() {
 
   const [players, setPlayers] = useState([])
   const [playerIds, setPlayerIds] = useState({})
+  const [matchmakingPoints, setMatchmakingPoints] = useState({})
+  const [eventsPlayed, setEventsPlayed] = useState({})
 
   useEffect(() => {
 
@@ -23,6 +25,46 @@ function Leaderboard() {
       })
 
       setPlayerIds(idsByName)
+
+    })
+
+    getContributions().then((data) => {
+
+      // Rows with no Contributions entered yet (a future/unplayed event
+      // that's been dragged down) still compute to 0 via formulas, so
+      // they're excluded here rather than counted as a game played.
+      const played = data.filter((row) => row.Player && row.Contributions)
+
+      const totals = {}
+      const counts = {}
+
+      played.forEach((row) => {
+
+        const name = row.Player.trim()
+
+        counts[name] = (counts[name] || 0) + 1
+
+        const points = parseFloat(row["Match Points"])
+
+        if (isNaN(points)) return
+
+        if (!totals[name]) {
+          totals[name] = { sum: 0, count: 0 }
+        }
+
+        totals[name].sum += points
+        totals[name].count += 1
+
+      })
+
+      const averages = {}
+
+      Object.entries(totals).forEach(([name, { sum, count }]) => {
+        averages[name] = sum / count
+      })
+
+      setMatchmakingPoints(averages)
+      setEventsPlayed(counts)
 
     })
 
@@ -45,8 +87,8 @@ function Leaderboard() {
           <tr>
             <th>Rank</th>
             <th>Player</th>
-            <th>Total Points</th>
-            <th>Average Points</th>
+            <th>Power Points</th>
+            <th>Matchmaking Points</th>
             <th>Events Played</th>
             <th>Wins</th>
             <th>Runner-Ups</th>
@@ -94,13 +136,15 @@ function Leaderboard() {
 
               <td>
 
-                {player["Average Points"]}
+                {matchmakingPoints[player.Player]
+                  ? matchmakingPoints[player.Player].toFixed(2)
+                  : "-"}
 
               </td>
 
               <td>
 
-                {player["Events Played"]}
+                {eventsPlayed[player.Player] || 0}
 
               </td>
 

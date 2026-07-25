@@ -1,131 +1,75 @@
 import { useEffect, useState } from "react"
-import { getPlayers, getRankings } from "../data/googleSheets"
-import { getTeamPoints, getRankMultiplier } from "../utils/pointsCalculator"
-
-let nextId = 1
-
-function makeTeam() {
-  return {
-    id: nextId++,
-    placement: "",
-    players: [
-      { name: "", contribution: "" },
-      { name: "", contribution: "" },
-    ],
-  }
-}
+import { getContributions, getSchedule } from "../data/googleSheets"
 
 function PointsCalculator() {
 
-  const [teams, setTeams] = useState([makeTeam(), makeTeam()])
-  const [rankMap, setRankMap] = useState({})
-  const [totalRanked, setTotalRanked] = useState(0)
-  const [playerNames, setPlayerNames] = useState([])
+  const [events, setEvents] = useState([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
 
     async function loadData() {
 
-      const [players, rankings] = await Promise.all([
-        getPlayers(),
-        getRankings(),
-      ])
+      try {
 
-      setPlayerNames(players.map((p) => p.Name))
+        const [contributions, schedule] = await Promise.all([
+          getContributions(),
+          getSchedule(),
+        ])
 
-      const map = {}
+        const scheduleById = {}
 
-      rankings.forEach((r) => {
-        map[r.Player.trim().toLowerCase()] = Number(r.Rank)
-      })
+        schedule.forEach((event) => {
+          scheduleById[event["Event ID"]] = event
+        })
 
-      setRankMap(map)
-      setTotalRanked(rankings.length)
+        const eventIds = []
+
+        contributions.forEach((row) => {
+          if (row["Event ID"] && !eventIds.includes(row["Event ID"])) {
+            eventIds.push(row["Event ID"])
+          }
+        })
+
+        const grouped = eventIds
+          .map((eventId) => {
+
+            const event = scheduleById[eventId]
+
+            const rows = contributions
+              .filter((row) => row["Event ID"] === eventId)
+              .sort(
+                (a, b) =>
+                  parseFloat(b["Match Points"]) - parseFloat(a["Match Points"])
+              )
+
+            return {
+              eventId,
+              eventName: event ? event["Event Name"] : `Event ${eventId}`,
+              date: event ? event.Date : "",
+              rows,
+            }
+
+          })
+          .sort((a, b) => Number(b.eventId) - Number(a.eventId))
+
+        setEvents(grouped)
+
+      } catch (error) {
+
+        console.error("Points Calculator Error:", error)
+
+      } finally {
+
+        setLoading(false)
+
+      }
 
     }
 
     loadData()
 
   }, [])
-
-  function updateTeam(id, field, value) {
-    setTeams((prev) =>
-      prev.map((team) =>
-        team.id === id ? { ...team, [field]: value } : team
-      )
-    )
-  }
-
-  function updatePlayer(teamId, playerIndex, field, value) {
-    setTeams((prev) =>
-      prev.map((team) => {
-        if (team.id !== teamId) return team
-
-        const players = team.players.map((player, index) =>
-          index === playerIndex ? { ...player, [field]: value } : player
-        )
-
-        return { ...team, players }
-      })
-    )
-  }
-
-  function addTeam() {
-    setTeams((prev) => [...prev, makeTeam()])
-  }
-
-  function removeTeam(id) {
-    setTeams((prev) => prev.filter((team) => team.id !== id))
-  }
-
-  function resetAll() {
-    setTeams([makeTeam(), makeTeam()])
-  }
-
-  const totalTeams = teams.length
-
-  const placements = teams
-    .map((t) => Number(t.placement))
-    .filter((p) => p > 0)
-
-  const placementsValid =
-    placements.length === teams.length &&
-    new Set(placements).size === teams.length &&
-    placements.every((p) => p >= 1 && p <= totalTeams)
-
-  const results = []
-
-  teams.forEach((team) => {
-
-    const placement = Number(team.placement)
-    const teamPoints = getTeamPoints(placement, totalTeams)
-
-    team.players.forEach((player) => {
-
-      if (!player.name.trim()) return
-
-      const contribution = Number(player.contribution) || 0
-      const basePoints = teamPoints * (contribution / 100)
-
-      const rank = rankMap[player.name.trim().toLowerCase()] || null
-      const multiplier = rank ? getRankMultiplier(rank, totalRanked) : 1
-
-      const finalPoints = basePoints * multiplier
-
-      results.push({
-        team: team.id,
-        placement: team.placement,
-        teamPoints,
-        name: player.name,
-        contribution,
-        rank,
-        multiplier,
-        finalPoints,
-      })
-
-    })
-
-  })
 
   return (
 
@@ -134,159 +78,26 @@ function PointsCalculator() {
       <h2>Points Calculator</h2>
 
       <p>
-        Enter each team's finishing placement and how much each player
-        contributed to the round. Points are calculated automatically and
-        can be copied into your Player History sheet.
+        Final points earned per player for each event, calculated in the
+        Google Sheet: placement points × contribution % × rank multiplier.
       </p>
 
-      {!placementsValid && placements.length > 0 && (
-        <p className="calc-warning">
-          Placements should be unique numbers from 1 to {totalTeams} (one per team).
-        </p>
+      {loading && (
+        <p>Loading...</p>
       )}
 
-      <div className="table-scroll">
+      {!loading && events.length === 0 && (
+        <p>No contribution data yet.</p>
+      )}
 
-        <table className="calc-table">
+      {!loading && events.map((event) => (
 
-          <thead>
-            <tr>
-              <th>Placement</th>
-              <th>Player 1</th>
-              <th>Contribution %</th>
-              <th>Player 2</th>
-              <th>Contribution %</th>
-              <th></th>
-            </tr>
-          </thead>
+        <div key={event.eventId} className="calc-event">
 
-          <tbody>
-
-            {teams.map((team) => {
-
-              const contributionTotal =
-                (Number(team.players[0].contribution) || 0) +
-                (Number(team.players[1].contribution) || 0)
-
-              const contributionOff =
-                (team.players[0].contribution || team.players[1].contribution) &&
-                contributionTotal !== 100
-
-              return (
-
-                <tr key={team.id}>
-
-                  <td>
-                    <input
-                      type="number"
-                      min="1"
-                      className="calc-input calc-input-small"
-                      value={team.placement}
-                      onChange={(e) =>
-                        updateTeam(team.id, "placement", e.target.value)
-                      }
-                    />
-                  </td>
-
-                  <td>
-                    <input
-                      list="calc-player-names"
-                      className="calc-input"
-                      value={team.players[0].name}
-                      onChange={(e) =>
-                        updatePlayer(team.id, 0, "name", e.target.value)
-                      }
-                    />
-                  </td>
-
-                  <td>
-                    <input
-                      type="number"
-                      min="0"
-                      max="100"
-                      className="calc-input calc-input-small"
-                      value={team.players[0].contribution}
-                      onChange={(e) =>
-                        updatePlayer(team.id, 0, "contribution", e.target.value)
-                      }
-                    />
-                  </td>
-
-                  <td>
-                    <input
-                      list="calc-player-names"
-                      className="calc-input"
-                      value={team.players[1].name}
-                      onChange={(e) =>
-                        updatePlayer(team.id, 1, "name", e.target.value)
-                      }
-                    />
-                  </td>
-
-                  <td>
-                    <input
-                      type="number"
-                      min="0"
-                      max="100"
-                      className="calc-input calc-input-small"
-                      value={team.players[1].contribution}
-                      onChange={(e) =>
-                        updatePlayer(team.id, 1, "contribution", e.target.value)
-                      }
-                    />
-
-                    {contributionOff && (
-                      <div className="calc-warning-inline">
-                        ≠ 100%
-                      </div>
-                    )}
-
-                  </td>
-
-                  <td>
-                    <button
-                      type="button"
-                      className="calc-remove-button"
-                      onClick={() => removeTeam(team.id)}
-                    >
-                      Remove
-                    </button>
-                  </td>
-
-                </tr>
-
-              )
-
-            })}
-
-          </tbody>
-
-        </table>
-
-      </div>
-
-      <datalist id="calc-player-names">
-        {playerNames.map((name) => (
-          <option key={name} value={name} />
-        ))}
-      </datalist>
-
-      <div className="calc-actions">
-
-        <button type="button" className="button" onClick={addTeam}>
-          + Add Team
-        </button>
-
-        <button type="button" className="calc-reset-button" onClick={resetAll}>
-          Reset
-        </button>
-
-      </div>
-
-      {results.length > 0 && (
-
-        <>
-          <h3>Results</h3>
+          <h3>
+            {event.eventName}
+            {event.date && ` — ${event.date}`}
+          </h3>
 
           <div className="table-scroll">
 
@@ -295,28 +106,32 @@ function PointsCalculator() {
               <thead>
                 <tr>
                   <th>Player</th>
-                  <th>Placement</th>
-                  <th>Team Points</th>
+                  <th>Team</th>
                   <th>Contribution</th>
-                  <th>Previous Rank</th>
-                  <th>Multiplier</th>
                   <th>Points Earned</th>
+                  <th>Rank</th>
+                  <th>Multiplier</th>
+                  <th>Final Points</th>
                 </tr>
               </thead>
 
               <tbody>
 
-                {results.map((r, index) => (
+                {event.rows.map((row, index) => (
 
                   <tr key={index}>
-                    <td>{r.name}</td>
-                    <td>{r.placement || "-"}</td>
-                    <td>{r.teamPoints.toFixed(2)}</td>
-                    <td>{r.contribution}%</td>
-                    <td>{r.rank ? `#${r.rank}` : "New"}</td>
-                    <td>{r.multiplier.toFixed(2)}x</td>
+                    <td>{row.Player}</td>
+                    <td>{row.Team}</td>
+                    <td>{row["Contribution %"]}</td>
+                    <td>{row["Points Earned"]}</td>
                     <td>
-                      <strong>{r.finalPoints.toFixed(2)}</strong>
+                      {row["Player's current rank"]
+                        ? `#${row["Player's current rank"]}`
+                        : "New"}
+                    </td>
+                    <td>{row["Multiplyer"]}x</td>
+                    <td>
+                      <strong>{row["Match Points"]}</strong>
                     </td>
                   </tr>
 
@@ -328,9 +143,9 @@ function PointsCalculator() {
 
           </div>
 
-        </>
+        </div>
 
-      )}
+      ))}
 
     </section>
 
