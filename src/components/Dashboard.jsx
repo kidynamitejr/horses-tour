@@ -23,7 +23,13 @@ function Dashboard() {
     getContributions().then(setContributions)
   }, [])
 
-  const leader = rankings.length > 0 ? rankings[0] : null
+  // Find the player with the best (lowest) rank number rather than
+  // trusting sheet row order, which doesn't always match current rank.
+  const leader = rankings.reduce((best, r) => {
+    if (!r.Rank) return best
+    if (!best || Number(r.Rank) < Number(best.Rank)) return r
+    return best
+  }, null)
 
   const today = new Date()
   today.setHours(0, 0, 0, 0)

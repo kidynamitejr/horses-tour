@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { getRankings, getPlayers, getContributions } from "../data/googleSheets"
+import { getMatchmakingPointsByPlayer, getEventsPlayedByPlayer } from "../utils/matchmakingPoints"
 
 function Leaderboard() {
 
@@ -7,6 +8,7 @@ function Leaderboard() {
   const [playerIds, setPlayerIds] = useState({})
   const [matchmakingPoints, setMatchmakingPoints] = useState({})
   const [eventsPlayed, setEventsPlayed] = useState({})
+  const [currentRanks, setCurrentRanks] = useState({})
 
   useEffect(() => {
 
@@ -30,45 +32,40 @@ function Leaderboard() {
 
     getContributions().then((data) => {
 
-      // Rows with no Contributions entered yet (a future/unplayed event
-      // that's been dragged down) still compute to 0 via formulas, so
-      // they're excluded here rather than counted as a game played.
-      const played = data.filter((row) => row.Player && row.Contributions)
+      setMatchmakingPoints(getMatchmakingPointsByPlayer(data))
+      setEventsPlayed(getEventsPlayedByPlayer(data))
 
-      const totals = {}
-      const counts = {}
+      // Rank is pulled from Contributions' own rank lookup (rather than
+      // the Rankings sheet's Rank column directly) so the leaderboard
+      // always matches whatever that sheet is currently computing.
+      const ranks = {}
 
-      played.forEach((row) => {
+      data.forEach((row) => {
+
+        if (!row.Player || !row["Player's current rank"]) return
 
         const name = row.Player.trim()
 
-        counts[name] = (counts[name] || 0) + 1
-
-        const points = parseFloat(row["Match Points"])
-
-        if (isNaN(points)) return
-
-        if (!totals[name]) {
-          totals[name] = { sum: 0, count: 0 }
+        if (!ranks[name]) {
+          ranks[name] = Number(row["Player's current rank"])
         }
 
-        totals[name].sum += points
-        totals[name].count += 1
-
       })
 
-      const averages = {}
-
-      Object.entries(totals).forEach(([name, { sum, count }]) => {
-        averages[name] = sum / count
-      })
-
-      setMatchmakingPoints(averages)
-      setEventsPlayed(counts)
+      setCurrentRanks(ranks)
 
     })
 
   }, [])
+
+  const sortedPlayers = [...players].sort((a, b) => {
+
+    const rankA = currentRanks[a.Player] ?? Number(a.Rank)
+    const rankB = currentRanks[b.Player] ?? Number(b.Rank)
+
+    return rankA - rankB
+
+  })
 
   return (
 
@@ -99,13 +96,13 @@ function Leaderboard() {
 
         <tbody>
 
-          {players.map((player, index) => (
+          {sortedPlayers.map((player, index) => (
 
             <tr key={index}>
 
               <td>
 
-                {player.Rank}
+                {currentRanks[player.Player] ?? player.Rank}
 
               </td>
 

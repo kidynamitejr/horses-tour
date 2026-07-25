@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
-import { getPlayers, getPlayerHistory } from "../data/googleSheets"
+import { getPlayers, getSchedule, getContributions } from "../data/googleSheets"
+import { getPlayedContributions } from "../utils/matchmakingPoints"
 
 function HottestPlayer() {
 
@@ -13,26 +14,32 @@ function HottestPlayer() {
 
       try {
 
-        const [players, history] = await Promise.all([
+        const [players, schedule, contributions] = await Promise.all([
           getPlayers(),
-          getPlayerHistory(),
+          getSchedule(),
+          getContributions(),
         ])
 
-        if (history.length === 0) {
+        // Only consider events that have actually been played - a
+        // future event dragged down in the sheet still has rows, just
+        // with blank Contributions, so it's excluded here.
+        const played = getPlayedContributions(contributions)
+
+        if (played.length === 0) {
           setHottest(null)
           return
         }
 
         const latestEventId = Math.max(
-          ...history.map((row) => Number(row["Event ID"]))
+          ...played.map((row) => Number(row["Event ID"]))
         )
 
-        const latestEventRows = history.filter(
+        const latestEventRows = played.filter(
           (row) => Number(row["Event ID"]) === latestEventId
         )
 
         const topRow = latestEventRows.reduce((best, row) =>
-          parseFloat(row["Points Earned"]) > parseFloat(best["Points Earned"])
+          parseFloat(row["Match Points"]) > parseFloat(best["Match Points"])
             ? row
             : best
         )
@@ -43,10 +50,14 @@ function HottestPlayer() {
             topRow.Player.trim().toLowerCase()
         )
 
+        const event = schedule.find(
+          (e) => e["Event ID"] === String(latestEventId)
+        )
+
         setHottest({
           player,
-          eventName: topRow["Event Name"],
-          pointsEarned: topRow["Points Earned"],
+          eventName: event ? event["Event Name"] : `Event ${latestEventId}`,
+          pointsEarned: parseFloat(topRow["Match Points"]).toFixed(2),
         })
 
       } catch (error) {

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
-import { getTourRecords, getPlayerStats, getMatchResults } from "../data/googleSheets"
+import { getTourRecords, getPlayerStats, getMatchResults, getContributions } from "../data/googleSheets"
 import { getTeamRecordCounts } from "../utils/teamRecords"
+import { getMatchmakingPointsByPlayer } from "../utils/matchmakingPoints"
 
 function getLeadersFromEntries(entries) {
 
@@ -46,10 +47,11 @@ function Stats() {
 
       try {
 
-        const [tourRecords, playerStats, matchResults] = await Promise.all([
+        const [tourRecords, playerStats, matchResults, contributions] = await Promise.all([
           getTourRecords(),
           getPlayerStats(),
           getMatchResults(),
+          getContributions(),
         ])
 
         const lowestTeamScore = tourRecords.find(
@@ -58,7 +60,15 @@ function Stats() {
 
         const highestSingleEvent = getLeaders(playerStats, "Highest Round Points")
         const totalPoints = getLeaders(playerStats, "Total Points")
-        const averagePoints = getLeaders(playerStats, "Average Points")
+
+        // Computed from Contributions (only rows where Contributions is
+        // filled in) rather than the sheet's own Average Points column,
+        // since that column divides by Events Played even when a future
+        // event's blank row is included in the count.
+        const matchmakingPointsByPlayer = getMatchmakingPointsByPlayer(contributions)
+        const averagePoints = getLeadersFromEntries(
+          Object.entries(matchmakingPointsByPlayer).map(([name, value]) => ({ name, value }))
+        )
 
         const teamCounts = getTeamRecordCounts(matchResults)
         const countEntries = Object.entries(teamCounts)
