@@ -1,87 +1,178 @@
+import { useEffect, useState } from "react"
+import { getSchedule, getMatchResults } from "../data/googleSheets"
+import { slugify } from "../utils/slugify"
+
+const COURSE_IMAGE_EXTENSIONS = ["jpg", "jpeg", "png", "webp"]
+
+function CourseImage({ course }) {
+
+  const [extIndex, setExtIndex] = useState(0)
+
+  if (extIndex >= COURSE_IMAGE_EXTENSIONS.length) {
+    return null
+  }
+
+  const src = `${import.meta.env.BASE_URL}images/courses/${slugify(course)}.${COURSE_IMAGE_EXTENSIONS[extIndex]}`
+
+  return (
+    <img
+      src={src}
+      alt=""
+      className="match-card-bg-img"
+      onError={() => setExtIndex((i) => i + 1)}
+    />
+  )
+
+}
+
 function PastMatches() {
 
+  const [matches, setMatches] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [expandedId, setExpandedId] = useState(null)
 
-  const matches = [
+  useEffect(() => {
 
-    {
-      event: "J.S. Clark Open",
-      date: "May 10, 2026",
-      winner: "Team A",
-      first: "Cole Browning / Player Two",
-      second: "Player Three / Player Four",
-      third: "Player Five / Player Six"
-    },
+    async function loadMatches() {
 
+      try {
 
-    {
-      event: "Horses Tour Summer Classic",
-      date: "July 18, 2026",
-      winner: "TBD",
-      first: "TBD",
-      second: "TBD",
-      third: "TBD"
+        const [schedule, results] = await Promise.all([
+          getSchedule(),
+          getMatchResults(),
+        ])
+
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+
+        const pastEvents = schedule.filter((event) => {
+          const eventDate = new Date(event.Date)
+          if (isNaN(eventDate)) return false
+          eventDate.setHours(0, 0, 0, 0)
+          return eventDate < today
+        })
+
+        const grouped = pastEvents
+          .map((event) => {
+
+            const eventId = event["Event ID"]
+
+            const teams = results
+              .filter(
+                (row) =>
+                  row["Event ID"] === eventId &&
+                  row.Score &&
+                  row.Finish &&
+                  !isNaN(Number(row.Finish))
+              )
+              .sort((a, b) => Number(a.Finish) - Number(b.Finish))
+
+            return {
+              eventId,
+              eventName: event["Event Name"],
+              date: event.Date,
+              course: event.Course,
+              teams,
+            }
+
+          })
+          .sort((a, b) => new Date(b.date) - new Date(a.date))
+
+        setMatches(grouped)
+
+      } catch (error) {
+
+        console.error("Past Matches Error:", error)
+
+      } finally {
+
+        setLoading(false)
+
+      }
+
     }
 
-  ]
+    loadMatches()
 
+  }, [])
+
+  if (loading) {
+    return (
+      <section className="card">
+        <h2>Past Matches</h2>
+        <p>Loading past matches...</p>
+      </section>
+    )
+  }
 
   return (
 
     <section className="card">
 
-
       <h2>
         Past Matches
       </h2>
 
+      {matches.length === 0 && (
+        <p>No past matches yet.</p>
+      )}
 
-      {matches.map((match) => (
+      <div className="match-grid">
 
+        {matches.map((match) => {
 
-        <div 
-          className="match-card"
-          key={match.event}
-        >
+          const isExpanded = expandedId === match.eventId
 
+          return (
 
-          <h3>
-            {match.event}
-          </h3>
+            <div
+              className={`match-card${isExpanded ? " match-card-expanded" : ""}`}
+              key={match.eventId}
+              onClick={() =>
+                setExpandedId(isExpanded ? null : match.eventId)
+              }
+            >
 
+              <CourseImage course={match.course} />
 
-          <p>
-            Date: {match.date}
-          </p>
+              <div className="match-card-front">
+                <h3>{match.eventName}</h3>
+                <p>{match.date}</p>
+              </div>
 
+              <div className="match-card-hover">
 
-          <p>
-            Winner: {match.winner}
-          </p>
+                <h3>{match.eventName}</h3>
+                <p>{match.date}</p>
 
+                {match.teams.length > 0 ? (
 
-          <hr />
+                  <ul className="match-results-list">
 
+                    {match.teams.map((team) => (
+                      <li key={team.Team}>
+                        <strong>{team.Finish}.</strong> {team["Player 1"]} / {team["Player 2"]}
+                        <span className="match-score"> — Score: {team.Score}</span>
+                      </li>
+                    ))}
 
-          <p>
-            1st: {match.first}
-          </p>
+                  </ul>
 
+                ) : (
 
-          <p>
-            2nd: {match.second}
-          </p>
+                  <p>Results coming soon.</p>
 
+                )}
 
-          <p>
-            3rd: {match.third}
-          </p>
+              </div>
 
+            </div>
 
-        </div>
+          )
 
+        })}
 
-      ))}
-
+      </div>
 
     </section>
 

@@ -7,7 +7,6 @@ import Hero from "./components/Hero"
 import Home from "./pages/Home"
 import LeaderboardPage from "./pages/LeaderboardPage"
 import SchedulePage from "./pages/SchedulePage"
-import EventsPage from "./pages/EventsPage"
 import PlayersPage from "./pages/PlayersPage"
 import StatsPage from "./pages/StatsPage"
 import GalleryPage from "./pages/GalleryPage"
@@ -16,6 +15,7 @@ import PastMatchesPage from "./pages/PastMatchesPage"
 import RulesPage from "./pages/RulesPage"
 import PlayerProfile from "./pages/PlayerProfile"
 import ArticlePage from "./pages/ArticlePage"
+import PointsCalculatorPage from "./pages/PointsCalculatorPage"
 
 function Layout() {
   const location = useLocation()
@@ -32,10 +32,6 @@ function Layout() {
     "/schedule": {
       title: "SCHEDULE",
       subtitle: "Upcoming events, tee times, and tournament information.",
-    },
-    "/events": {
-      title: "EVENTS",
-      subtitle: "View every Horses Tour event throughout the season.",
     },
     "/players": {
       title: "PLAYERS",
@@ -62,6 +58,10 @@ function Layout() {
       title: "RULES",
       subtitle: "Everything you need to know about Horses Tour competition.",
     },
+    "/calculator": {
+      title: "POINTS CALCULATOR",
+      subtitle: "Calculate player points for a completed event.",
+    },
   }
 
   const currentHero =
@@ -86,8 +86,6 @@ function Layout() {
 
           <Route path="/schedule" element={<SchedulePage />} />
 
-          <Route path="/events" element={<EventsPage />} />
-
           <Route path="/players" element={<PlayersPage />} />
 
           <Route path="/stats" element={<StatsPage />} />
@@ -101,6 +99,8 @@ function Layout() {
           <Route path="/past-matches" element={<PastMatchesPage />} />
 
           <Route path="/rules" element={<RulesPage />} />
+
+          <Route path="/calculator" element={<PointsCalculatorPage />} />
 
           <Route
             path="/player-profile/:name"

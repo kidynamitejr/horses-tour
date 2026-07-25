@@ -28,6 +28,12 @@ const PLAYER_HISTORY_URL =
 const RULES_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vSaRzObvMpmjQNGdhCQZUoiwazKtbfL2t5tnf7n7nr34NvQQYrL9_dvNEJ_U1s0W5FMA_6V9N9S0GdY/pub?gid=1947708801&single=true&output=csv"
 
+const TOUR_RECORDS_URL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vSaRzObvMpmjQNGdhCQZUoiwazKtbfL2t5tnf7n7nr34NvQQYrL9_dvNEJ_U1s0W5FMA_6V9N9S0GdY/pub?gid=774744327&single=true&output=csv"
+
+const MATCH_RESULTS_URL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vSaRzObvMpmjQNGdhCQZUoiwazKtbfL2t5tnf7n7nr34NvQQYrL9_dvNEJ_U1s0W5FMA_6V9N9S0GdY/pub?gid=1586411260&single=true&output=csv"
+
 // ==============================
 // CSV PARSER
 // ==============================
@@ -158,4 +164,12 @@ export async function getPlayerHistory() {
 
 export async function getRules() {
   return await readCSV(RULES_URL)
+}
+
+export async function getTourRecords() {
+  return await readCSV(TOUR_RECORDS_URL)
+}
+
+export async function getMatchResults() {
+  return await readCSV(MATCH_RESULTS_URL)
 }

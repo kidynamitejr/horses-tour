@@ -60,15 +60,18 @@ h1, h2, h3, .logo-text {
 }
 
 .nav a {
-  text-decoration: none;
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 255, 255, 0.35);
+  text-underline-offset: 4px;
   color: white;
   font-weight: 600;
   font-size: 15px;
-  transition: color .2s;
+  transition: color .2s, text-decoration-color .2s;
 }
 
 .nav a:hover {
   color: #8fd3ff;
+  text-decoration-color: #8fd3ff;
 }
 
 /* HERO */
@@ -89,12 +92,14 @@ h1, h2, h3, .logo-text {
 }
 
 .hero-content h1 {
+  color: white;
   font-size: 56px;
   margin: 0 0 15px;
   letter-spacing: 3px;
 }
 
 .hero-content p {
+  color: white;
   font-size: 20px;
   max-width: 700px;
 }
@@ -197,6 +202,72 @@ td {
   border-bottom: 1px solid #e5e5e5;
 }
 
+/* POINTS CALCULATOR */
+
+.calc-table {
+  min-width: 700px;
+}
+
+.calc-input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.calc-input-small {
+  width: 80px;
+}
+
+.calc-warning {
+  color: #b3261e;
+  font-weight: 600;
+}
+
+.calc-warning-inline {
+  color: #b3261e;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.calc-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.calc-remove-button {
+  background: none;
+  border: 1px solid #b3261e;
+  color: #b3261e;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.calc-remove-button:hover {
+  background: #fdeceb;
+}
+
+.calc-reset-button {
+  background: none;
+  border: 1px solid #999;
+  color: #444;
+  border-radius: 8px;
+  padding: 12px 22px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: bold;
+}
+
+.calc-reset-button:hover {
+  background: #f0f0f0;
+}
+
 tr:hover {
   background: #f6fbff;
 }
@@ -288,6 +359,13 @@ tr:hover {
 .stat-card p {
   font-size: 26px;
   font-weight: bold;
+}
+
+.stat-card .stat-team {
+  font-size: 14px;
+  font-weight: normal;
+  color: #555;
+  margin-top: 4px;
 }
 
 /* DASHBOARD */
@@ -419,6 +497,104 @@ tr:hover {
   width:100%;
   height:200px;
   object-fit:cover;
+}
+
+/* PAST MATCHES */
+
+.match-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+.match-card {
+  position: relative;
+  height: 180px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 2px solid #003b5c;
+  box-shadow: 0 8px 24px rgba(0,0,0,.08);
+  background: white;
+  cursor: pointer;
+  transition: box-shadow .25s;
+}
+
+.match-card:hover,
+.match-card.match-card-expanded {
+  box-shadow: 0 14px 34px rgba(0,0,0,.22);
+}
+
+.match-card-bg-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.match-card-front {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+  opacity: 1;
+  transition: opacity .25s;
+}
+
+.match-card-front h3,
+.match-card-front p {
+  margin: 0 0 8px;
+  color: white;
+  text-shadow: 0 1px 4px rgba(0,0,0,.85);
+}
+
+.match-card:hover .match-card-front,
+.match-card.match-card-expanded .match-card-front {
+  opacity: 0;
+}
+
+.match-card-hover {
+  position: absolute;
+  inset: 0;
+  color: white;
+  padding: 20px;
+  opacity: 0;
+  transition: opacity .25s;
+  overflow-y: auto;
+}
+
+.match-card:hover .match-card-hover,
+.match-card.match-card-expanded .match-card-hover {
+  opacity: 1;
+}
+
+.match-card-hover h3,
+.match-card-hover p {
+  color: white;
+  margin: 0 0 4px;
+  text-shadow: 0 1px 4px rgba(0,0,0,.85);
+}
+
+.match-results-list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  text-align: left;
+}
+
+.match-results-list li {
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255,255,255,.35);
+  font-size: 14px;
+  text-shadow: 0 1px 4px rgba(0,0,0,.85);
+}
+
+.match-score {
+  opacity: .9;
 }
 
 /* FOOTER */

@@ -28,10 +28,6 @@ function Header() {
           Schedule
         </Link>
 
-        <Link to="/events">
-          Events
-        </Link>
-
         <Link to="/players">
           Players
         </Link>
