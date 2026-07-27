@@ -40,6 +40,9 @@ const GALLERY_URL =
 const CONTRIBUTIONS_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vSaRzObvMpmjQNGdhCQZUoiwazKtbfL2t5tnf7n7nr34NvQQYrL9_dvNEJ_U1s0W5FMA_6V9N9S0GdY/pub?gid=644588552&single=true&output=csv"
 
+const MATCH_ENTRY_URL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vSaRzObvMpmjQNGdhCQZUoiwazKtbfL2t5tnf7n7nr34NvQQYrL9_dvNEJ_U1s0W5FMA_6V9N9S0GdY/pub?gid=1996241982&single=true&output=csv"
+
 // ==============================
 // CSV PARSER
 // ==============================
@@ -186,4 +189,8 @@ export async function getGallery() {
 
 export async function getContributions() {
   return await readCSV(CONTRIBUTIONS_URL)
+}
+
+export async function getMatchEntry() {
+  return await readCSV(MATCH_ENTRY_URL)
 }

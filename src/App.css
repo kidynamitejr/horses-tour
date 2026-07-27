@@ -265,8 +265,8 @@ tr:hover {
 }
 
 .leaderboard-avatar {
-  width: 36px;
-  height: 36px;
+  width: 41px;
+  height: 41px;
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
@@ -491,8 +491,8 @@ tr:hover {
 
 .dashboard-team-list {
   list-style: none;
-  margin: 3px 0 0;
-  padding: 3px 0 0;
+  margin: 2px 0 0;
+  padding: 2px 0 0;
   border-top: 1px solid #eee;
   text-align: left;
   flex: 1;
@@ -501,10 +501,10 @@ tr:hover {
 }
 
 .dashboard-team-list li {
-  font-size: 12px;
+  font-size: 11px;
   color: #444;
   padding: 0;
-  line-height: 1.15;
+  line-height: 1.05;
 }
 
 .dashboard-team-list strong {

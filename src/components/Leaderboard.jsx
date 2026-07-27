@@ -1,22 +1,14 @@
 import { useEffect, useState } from "react"
-import { getRankings, getPlayers, getContributions } from "../data/googleSheets"
-import { getMatchmakingPointsByPlayer, getEventsPlayedByPlayer } from "../utils/matchmakingPoints"
+import { getPlayers, getMatchEntry } from "../data/googleSheets"
+import { getPlayerSummaries } from "../utils/matchEntry"
 
 function Leaderboard() {
 
   const [players, setPlayers] = useState([])
   const [playerIds, setPlayerIds] = useState({})
-  const [matchmakingPoints, setMatchmakingPoints] = useState({})
-  const [eventsPlayed, setEventsPlayed] = useState({})
-  const [currentRanks, setCurrentRanks] = useState({})
+  const [summaries, setSummaries] = useState({})
 
   useEffect(() => {
-
-    getRankings().then((data) => {
-
-      setPlayers(data)
-
-    })
 
     getPlayers().then((data) => {
 
@@ -30,42 +22,17 @@ function Leaderboard() {
 
     })
 
-    getContributions().then((data) => {
+    getMatchEntry().then((data) => {
 
-      setMatchmakingPoints(getMatchmakingPointsByPlayer(data))
-      setEventsPlayed(getEventsPlayedByPlayer(data))
-
-      // Rank is pulled from Contributions' own rank lookup (rather than
-      // the Rankings sheet's Rank column directly) so the leaderboard
-      // always matches whatever that sheet is currently computing.
-      const ranks = {}
-
-      data.forEach((row) => {
-
-        if (!row.Player || !row["Player's current rank"]) return
-
-        const name = row.Player.trim()
-
-        if (!ranks[name]) {
-          ranks[name] = Number(row["Player's current rank"])
-        }
-
-      })
-
-      setCurrentRanks(ranks)
+      setSummaries(getPlayerSummaries(data))
 
     })
 
   }, [])
 
-  const sortedPlayers = [...players].sort((a, b) => {
-
-    const rankA = currentRanks[a.Player] ?? Number(a.Rank)
-    const rankB = currentRanks[b.Player] ?? Number(b.Rank)
-
-    return rankA - rankB
-
-  })
+  const sortedPlayers = Object.entries(summaries)
+    .map(([name, s]) => ({ name, ...s }))
+    .sort((a, b) => (a.rank ?? Infinity) - (b.rank ?? Infinity))
 
   return (
 
@@ -84,8 +51,8 @@ function Leaderboard() {
           <tr>
             <th>Rank</th>
             <th>Player</th>
+            <th>Ranking Factor</th>
             <th>Power Points</th>
-            <th>Matchmaking Points</th>
             <th>Events Played</th>
             <th>Wins</th>
             <th>Runner-Ups</th>
@@ -96,13 +63,13 @@ function Leaderboard() {
 
         <tbody>
 
-          {sortedPlayers.map((player, index) => (
+          {sortedPlayers.map((player) => (
 
-            <tr key={index}>
+            <tr key={player.name}>
 
               <td>
 
-                {currentRanks[player.Player] ?? player.Rank}
+                {player.rank ?? "-"}
 
               </td>
 
@@ -111,15 +78,15 @@ function Leaderboard() {
                 <div className="leaderboard-player">
 
                   <img
-                    src={`${import.meta.env.BASE_URL}images/players/${playerIds[player.Player]}.jpg`}
-                    alt={player.Player}
+                    src={`${import.meta.env.BASE_URL}images/players/${playerIds[player.name]}.jpg`}
+                    alt={player.name}
                     className="leaderboard-avatar"
                     onError={(e) => {
                       e.target.src = `${import.meta.env.BASE_URL}images/players/default.jpg`
                     }}
                   />
 
-                  {player.Player}
+                  {player.name}
 
                 </div>
 
@@ -127,39 +94,37 @@ function Leaderboard() {
 
               <td>
 
-                {player["Total Points"]}
+                {player.avgRankingPoints}
 
               </td>
 
               <td>
 
-                {matchmakingPoints[player.Player]
-                  ? matchmakingPoints[player.Player].toFixed(2)
-                  : "-"}
+                {player.totalPowerScore}
 
               </td>
 
               <td>
 
-                {eventsPlayed[player.Player] || 0}
+                {player.eventsPlayed}
 
               </td>
 
               <td>
 
-                {player.Wins}
+                {player.wins}
 
               </td>
 
               <td>
 
-                {player["Runner-Ups"]}
+                {player.runnerUps}
 
               </td>
 
               <td>
 
-                {player["Top Three Finish"]}
+                {player.topThree}
 
               </td>
 

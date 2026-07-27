@@ -12,40 +12,34 @@ import {
 
 import {
   getPlayers,
-  getPlayerStats,
   getPlayerHistory,
-  getContributions
+  getContributions,
+  getMatchEntry,
 } from "../data/googleSheets"
-import {
-  getMatchmakingPointsByPlayer,
-  getEventsPlayedByPlayer,
-  getPlayedContributions,
-} from "../utils/matchmakingPoints"
+import { getPlayedContributions } from "../utils/matchmakingPoints"
+import { getPlayerSummaries } from "../utils/matchEntry"
 
 function PlayerProfile() {
   const { name } = useParams()
 
   const [player, setPlayer] = useState(null)
-  const [stats, setStats] = useState(null)
+  const [summary, setSummary] = useState(null)
   const [history, setHistory] = useState([])
-  const [matchmakingPoints, setMatchmakingPoints] = useState(null)
-  const [eventsPlayed, setEventsPlayed] = useState(0)
   const [roundStats, setRoundStats] = useState({
     highest: null,
     lowest: null,
     best: null,
     worst: null,
   })
-  const [currentRank, setCurrentRank] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function loadPlayer() {
       try {
         const players = await getPlayers()
-        const playerStats = await getPlayerStats()
         const playerHistory = await getPlayerHistory()
         const contributions = await getContributions()
+        const matchEntry = await getMatchEntry()
 
         const foundPlayer = players.find(
           (p) =>
@@ -56,27 +50,10 @@ function PlayerProfile() {
         setPlayer(foundPlayer || null)
 
         if (foundPlayer) {
-          const foundStats = playerStats.find(
-            (s) =>
-              s.Player.trim().toLowerCase() ===
-              foundPlayer.Name.trim().toLowerCase()
-          )
 
-          setStats(foundStats || null)
+          const summaries = getPlayerSummaries(matchEntry)
 
-          // Rank is pulled from Contributions' own rank lookup (rather
-          // than the Player Stats sheet's Rank column) so it always
-          // matches whatever that sheet is currently computing - it's
-          // populated even for a future event's row.
-          const rankRow = contributions.find(
-            (c) =>
-              c.Player &&
-              c.Player.trim().toLowerCase() ===
-                foundPlayer.Name.trim().toLowerCase() &&
-              c["Player's current rank"]
-          )
-
-          setCurrentRank(rankRow ? Number(rankRow["Player's current rank"]) : null)
+          setSummary(summaries[foundPlayer.Name] || null)
 
           const playedContributions = getPlayedContributions(contributions).filter(
             (c) =>
@@ -102,17 +79,6 @@ function PlayerProfile() {
             .sort((a, b) => Number(a["Event ID"]) - Number(b["Event ID"]))
 
           setHistory(foundHistory)
-
-          const eventsPlayedByPlayer = getEventsPlayedByPlayer(contributions)
-          const matchmakingPointsByPlayer = getMatchmakingPointsByPlayer(contributions)
-
-          setEventsPlayed(eventsPlayedByPlayer[foundPlayer.Name] || 0)
-
-          setMatchmakingPoints(
-            matchmakingPointsByPlayer[foundPlayer.Name] !== undefined
-              ? matchmakingPointsByPlayer[foundPlayer.Name]
-              : null
-          )
 
           // Best/Worst Tournament and Highest/Lowest Round are computed
           // from Contributions (played rows only) instead of the Player
@@ -195,41 +161,37 @@ function PlayerProfile() {
         <div className="stats-grid">
           <div className="stat-card">
             <h3>Rank</h3>
-            <p>{currentRank ?? stats?.Rank ?? "-"}</p>
+            <p>{summary?.rank ?? "-"}</p>
           </div>
 
           <div className="stat-card">
             <h3>Power Points</h3>
-            <p>{stats?.["Total Points"] || "0"}</p>
+            <p>{summary?.totalPowerScore ?? "0"}</p>
           </div>
 
           <div className="stat-card">
             <h3>Matchmaking Points</h3>
-            <p>
-              {matchmakingPoints !== null
-                ? matchmakingPoints.toFixed(2)
-                : "-"}
-            </p>
+            <p>{summary?.rankingPointsTotal ?? "-"}</p>
           </div>
 
           <div className="stat-card">
             <h3>Events Played</h3>
-            <p>{eventsPlayed}</p>
+            <p>{summary?.eventsPlayed ?? 0}</p>
           </div>
 
           <div className="stat-card">
             <h3>Wins</h3>
-            <p>{stats?.Wins || "0"}</p>
+            <p>{summary?.wins ?? 0}</p>
           </div>
 
           <div className="stat-card">
             <h3>Runner Ups</h3>
-            <p>{stats?.["Runner Ups"] || "0"}</p>
+            <p>{summary?.runnerUps ?? 0}</p>
           </div>
 
           <div className="stat-card">
             <h3>Top 3 Finishes</h3>
-            <p>{stats?.["Top 3 Finishes"] || "0"}</p>
+            <p>{summary?.topThree ?? 0}</p>
           </div>
 
           <div className="stat-card">

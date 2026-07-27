@@ -2,34 +2,41 @@ import { useEffect, useState } from "react"
 
 import {
   getPlayers,
-  getRankings,
   getSchedule,
   getEvents,
-  getContributions,
+  getMatchEntry,
 } from "../data/googleSheets"
+import { getPlayerSummaries } from "../utils/matchEntry"
 
 function Dashboard() {
   const [players, setPlayers] = useState([])
-  const [rankings, setRankings] = useState([])
   const [schedule, setSchedule] = useState([])
   const [events, setEvents] = useState([])
-  const [contributions, setContributions] = useState([])
+  const [matchEntry, setMatchEntry] = useState([])
+  const [leader, setLeader] = useState(null)
 
   useEffect(() => {
     getPlayers().then(setPlayers)
-    getRankings().then(setRankings)
     getSchedule().then(setSchedule)
     getEvents().then(setEvents)
-    getContributions().then(setContributions)
-  }, [])
 
-  // Find the player with the best (lowest) rank number rather than
-  // trusting sheet row order, which doesn't always match current rank.
-  const leader = rankings.reduce((best, r) => {
-    if (!r.Rank) return best
-    if (!best || Number(r.Rank) < Number(best.Rank)) return r
-    return best
-  }, null)
+    getMatchEntry().then((data) => {
+
+      setMatchEntry(data)
+
+      const summaries = getPlayerSummaries(data)
+
+      // Find the player with the best (lowest) rank number.
+      const topPlayer = Object.entries(summaries).reduce((best, [name, s]) => {
+        if (s.rank === null) return best
+        if (!best || s.rank < best.rank) return { name, ...s }
+        return best
+      }, null)
+
+      setLeader(topPlayer)
+
+    })
+  }, [])
 
   const today = new Date()
   today.setHours(0, 0, 0, 0)
@@ -57,7 +64,7 @@ function Dashboard() {
 
   const nextEventTeams = nextEvent
     ? Object.entries(
-        contributions
+        matchEntry
           .filter((row) => row["Event ID"] === nextEvent["Event ID"])
           .reduce((teams, row) => {
             if (!row.Team || !row.Player) return teams
@@ -76,12 +83,12 @@ function Dashboard() {
 
       <div className="dashboard-card leader">
 
-        <h2>Points Leader</h2>
+        <h2>Power Points Leader</h2>
 
         {leader ? (
           <>
-            <h3>{leader.Player}</h3>
-            <p>{leader["Total Points"]} Points</p>
+            <h3>{leader.name}</h3>
+            <p>{leader.totalPowerScore} Points</p>
           </>
         ) : (
           <>

@@ -1,7 +1,35 @@
 import { useEffect, useState } from "react"
-import { getTourRecords, getPlayerStats, getMatchResults, getContributions } from "../data/googleSheets"
+import { getPlayerStats, getMatchResults, getContributions, getMatchEntry } from "../data/googleSheets"
 import { getTeamRecordCounts } from "../utils/teamRecords"
 import { getMatchmakingPointsByPlayer } from "../utils/matchmakingPoints"
+import { getPlayerSummaries } from "../utils/matchEntry"
+
+// Finds the single lowest Team Score in Match Entry (ignoring
+// future/unplayed rows, which have a blank score) and returns everyone
+// who was on that team.
+function getLowestTeamScore(matchEntry) {
+
+  const valid = matchEntry
+    .filter((row) => row["Team Score"] && !isNaN(parseFloat(row["Team Score"])))
+    .map((row) => ({
+      team: row.Team,
+      player: row.Player,
+      score: parseFloat(row["Team Score"]),
+    }))
+
+  if (valid.length === 0) {
+    return { score: null, players: [] }
+  }
+
+  const min = Math.min(...valid.map((r) => r.score))
+
+  const players = valid
+    .filter((r) => r.score === min)
+    .map((r) => r.player)
+
+  return { score: min, players }
+
+}
 
 function getLeadersFromEntries(entries) {
 
@@ -47,19 +75,21 @@ function Stats() {
 
       try {
 
-        const [tourRecords, playerStats, matchResults, contributions] = await Promise.all([
-          getTourRecords(),
+        const [playerStats, matchResults, contributions, matchEntry] = await Promise.all([
           getPlayerStats(),
           getMatchResults(),
           getContributions(),
+          getMatchEntry(),
         ])
 
-        const lowestTeamScore = tourRecords.find(
-          (r) => r.Record === "Lowest Team Score"
-        )
+        const lowestTeamScore = getLowestTeamScore(matchEntry)
 
         const highestSingleEvent = getLeaders(playerStats, "Highest Round Points")
-        const totalPoints = getLeaders(playerStats, "Total Points")
+
+        const summaries = getPlayerSummaries(matchEntry)
+        const totalPoints = getLeadersFromEntries(
+          Object.entries(summaries).map(([name, s]) => ({ name, value: s.totalPowerScore }))
+        )
 
         // Computed from Contributions (only rows where Contributions is
         // filled in) rather than the sheet's own Average Points column,
@@ -87,9 +117,11 @@ function Stats() {
 
         const combined = []
 
-        if (lowestTeamScore) {
-          combined.push(lowestTeamScore)
-        }
+        combined.push({
+          Record: "Best Team Score",
+          Score: formatScore(lowestTeamScore.score),
+          Team: lowestTeamScore.players.join(", "),
+        })
 
         combined.push(
           {
@@ -98,7 +130,7 @@ function Stats() {
             Team: highestSingleEvent.names.join(", "),
           },
           {
-            Record: "Most Total Points",
+            Record: "Most Power Score",
             Score: formatScore(totalPoints.value),
             Team: totalPoints.names.join(", "),
           },

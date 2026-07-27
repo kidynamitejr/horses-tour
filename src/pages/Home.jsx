@@ -1,6 +1,5 @@
 import Dashboard from "../components/Dashboard"
 import Leaderboard from "../components/Leaderboard"
-import Schedule from "../components/Schedule"
 import News from "../components/News"
 import HottestPlayer from "../components/HottestPlayer"
 
@@ -18,8 +17,6 @@ function Home() {
       <Dashboard />
 
       <Leaderboard />
-
-      <Schedule />
 
       <News />
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { getSchedule, getMatchResults } from "../data/googleSheets"
+import { getSchedule, getMatchEntry } from "../data/googleSheets"
 import { slugify } from "../utils/slugify"
 
 const COURSE_IMAGE_EXTENSIONS = ["jpg", "jpeg", "png", "webp"]
@@ -37,9 +37,9 @@ function PastMatches() {
 
       try {
 
-        const [schedule, results] = await Promise.all([
+        const [schedule, matchEntry] = await Promise.all([
           getSchedule(),
-          getMatchResults(),
+          getMatchEntry(),
         ])
 
         const today = new Date()
@@ -57,15 +57,34 @@ function PastMatches() {
 
             const eventId = event["Event ID"]
 
-            const teams = results
-              .filter(
-                (row) =>
-                  row["Event ID"] === eventId &&
-                  row.Score &&
-                  row.Finish &&
-                  !isNaN(Number(row.Finish))
-              )
-              .sort((a, b) => Number(a.Finish) - Number(b.Finish))
+            const rowsForEvent = matchEntry.filter(
+              (row) =>
+                row["Event ID"] === eventId &&
+                row["Team Score"] &&
+                row.Placement &&
+                !isNaN(Number(row.Placement))
+            )
+
+            const teamsByLetter = rowsForEvent.reduce((teams, row) => {
+
+              if (!teams[row.Team]) {
+                teams[row.Team] = {
+                  team: row.Team,
+                  finish: row.Placement,
+                  score: row["Team Score"],
+                  players: [],
+                }
+              }
+
+              teams[row.Team].players.push(row.Player)
+
+              return teams
+
+            }, {})
+
+            const teams = Object.values(teamsByLetter).sort(
+              (a, b) => Number(a.finish) - Number(b.finish)
+            )
 
             return {
               eventId,
@@ -150,9 +169,9 @@ function PastMatches() {
                   <ul className="match-results-list">
 
                     {match.teams.map((team) => (
-                      <li key={team.Team}>
-                        <strong>{team.Finish}.</strong> {team["Player 1"]} / {team["Player 2"]}
-                        <span className="match-score"> — Score: {team.Score}</span>
+                      <li key={team.team}>
+                        <strong>{team.finish}.</strong> {team.players.join(" / ")}
+                        <span className="match-score"> — Score: {team.score}</span>
                       </li>
                     ))}
 
