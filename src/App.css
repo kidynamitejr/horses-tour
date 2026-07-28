@@ -234,6 +234,20 @@ td {
   border-bottom: 1px solid #e5e5e5;
 }
 
+.last-match-table th {
+  padding: 8px 10px;
+}
+
+.last-match-table td {
+  padding: 8px 10px;
+  font-size: 16px;
+}
+
+.last-match-table .leaderboard-avatar {
+  width: 45px;
+  height: 45px;
+}
+
 /* POINTS CALCULATOR */
 
 .calc-table {
@@ -270,6 +284,20 @@ tr:hover {
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
+}
+
+.movement-up {
+  color: #2d6a4f;
+  font-weight: bold;
+}
+
+.movement-down {
+  color: #b3261e;
+  font-weight: bold;
+}
+
+.movement-neutral {
+  color: #999;
 }
 
 /* TOUR LEADER CHARTS */

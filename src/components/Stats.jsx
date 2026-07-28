@@ -64,6 +64,12 @@ function formatScore(value) {
   return Number.isInteger(value) ? String(value) : value.toFixed(2)
 }
 
+function formatOverPar(value) {
+  if (value === null) return "-"
+  const formatted = formatScore(value)
+  return value >= 0 ? `+${formatted}` : formatted
+}
+
 function Stats() {
 
   const [records, setRecords] = useState([])
@@ -119,7 +125,7 @@ function Stats() {
 
         combined.push({
           Record: "Best Team Score",
-          Score: formatScore(lowestTeamScore.score),
+          Score: formatOverPar(lowestTeamScore.score),
           Team: lowestTeamScore.players.join(", "),
         })
 

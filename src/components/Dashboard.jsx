@@ -26,10 +26,10 @@ function Dashboard() {
 
       const summaries = getPlayerSummaries(data)
 
-      // Find the player with the best (lowest) rank number.
+      // Find the player with the most Power Points - this is an
+      // independent season-long tracker, unrelated to Rank/Ranking Points.
       const topPlayer = Object.entries(summaries).reduce((best, [name, s]) => {
-        if (s.rank === null) return best
-        if (!best || s.rank < best.rank) return { name, ...s }
+        if (!best || s.totalPowerScore > best.totalPowerScore) return { name, ...s }
         return best
       }, null)
 

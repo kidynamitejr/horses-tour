@@ -1,5 +1,5 @@
 import Dashboard from "../components/Dashboard"
-import Leaderboard from "../components/Leaderboard"
+import LastMatchResults from "../components/LastMatchResults"
 import News from "../components/News"
 import HottestPlayer from "../components/HottestPlayer"
 
@@ -16,7 +16,7 @@ function Home() {
 
       <Dashboard />
 
-      <Leaderboard />
+      <LastMatchResults />
 
       <News />
 

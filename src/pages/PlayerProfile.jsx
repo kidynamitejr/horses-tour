@@ -24,7 +24,7 @@ function PlayerProfile() {
 
   const [player, setPlayer] = useState(null)
   const [summary, setSummary] = useState(null)
-  const [history, setHistory] = useState([])
+  const [pointsHistory, setPointsHistory] = useState([])
   const [roundStats, setRoundStats] = useState({
     highest: null,
     lowest: null,
@@ -65,30 +65,37 @@ function PlayerProfile() {
             playedContributions.map((c) => c["Event ID"])
           )
 
-          // Only include events this player actually played - Player
-          // History gets a dragged-down row (Points Earned 0.0) for
-          // future events too, which would otherwise show up as a fake
-          // data point on the chart.
-          const foundHistory = playerHistory
-            .filter(
-              (h) =>
-                h.Player.trim().toLowerCase() ===
-                  foundPlayer.Name.trim().toLowerCase() &&
-                playedEventIds.has(h["Event ID"])
-            )
-            .sort((a, b) => Number(a["Event ID"]) - Number(b["Event ID"]))
-
-          setHistory(foundHistory)
-
           // Best/Worst Tournament and Highest/Lowest Round are computed
           // from Contributions (played rows only) instead of the Player
           // Stats sheet's own columns, since a future event's phantom
           // 0.0 row would otherwise always win the "worst" comparison.
           const eventNameById = {}
+          const eventDateById = {}
 
           playerHistory.forEach((h) => {
             eventNameById[h["Event ID"]] = h["Event Name"]
+            eventDateById[h["Event ID"]] = h.Date
           })
+
+          // Points scored per match, taken from Match Entry (Match
+          // Ranking Points) rather than Player History's running
+          // average - only actually played events are included.
+          const playedMatchEntryRows = matchEntry
+            .filter(
+              (row) =>
+                row.Player &&
+                row.Player.trim().toLowerCase() ===
+                  foundPlayer.Name.trim().toLowerCase() &&
+                playedEventIds.has(row["Event ID"])
+            )
+            .sort((a, b) => Number(a["Event ID"]) - Number(b["Event ID"]))
+
+          setPointsHistory(
+            playedMatchEntryRows.map((row) => ({
+              tournament: `${eventNameById[row["Event ID"]] || `Event ${row["Event ID"]}`} (${eventDateById[row["Event ID"]] || ""})`,
+              points: parseFloat(row["Match Ranking Points"]) || 0,
+            }))
+          )
 
           const roundsWithPoints = playedContributions
             .map((c) => ({
@@ -216,16 +223,13 @@ function PlayerProfile() {
         </div>
       </section>
 
-      {history.length > 0 && (
+      {pointsHistory.length > 0 && (
         <section className="card">
-          <h2>Average Points Over Time</h2>
+          <h2>Points Scored Over Time</h2>
 
           <ResponsiveContainer width="100%" height={320}>
             <LineChart
-              data={history.map((h) => ({
-                tournament: `${h["Event Name"]} (${h.Date})`,
-                averagePoints: parseFloat(h["Average Points"]) || 0,
-              }))}
+              data={pointsHistory}
               margin={{ top: 10, right: 20, left: 0, bottom: 60 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
@@ -245,8 +249,8 @@ function PlayerProfile() {
 
               <Line
                 type="monotone"
-                dataKey="averagePoints"
-                name="Average Points"
+                dataKey="points"
+                name="Points Scored"
                 stroke="#003b5c"
                 strokeWidth={2}
                 dot={{ r: 4 }}
