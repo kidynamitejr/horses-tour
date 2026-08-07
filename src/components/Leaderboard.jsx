@@ -30,9 +30,26 @@ function Leaderboard() {
 
   }, [])
 
+  // Rank is computed here from Ranking Factor (AVG Ranking Points)
+  // rather than trusting the sheet's own Current Rank column, which is
+  // a separate lookup against the old Rankings tab and can drift out
+  // of sync with what Match Entry actually calculates.
   const sortedPlayers = Object.entries(summaries)
     .map(([name, s]) => ({ name, ...s }))
-    .sort((a, b) => (a.rank ?? Infinity) - (b.rank ?? Infinity))
+    .sort((a, b) => b.avgRankingPoints - a.avgRankingPoints)
+
+  let rankCounter = 0
+
+  const rankedPlayers = sortedPlayers.map((player) => {
+
+    if (player.eventsPlayed > 0) {
+      rankCounter += 1
+      return { ...player, computedRank: rankCounter }
+    }
+
+    return { ...player, computedRank: null }
+
+  })
 
   return (
 
@@ -63,13 +80,13 @@ function Leaderboard() {
 
         <tbody>
 
-          {sortedPlayers.map((player) => (
+          {rankedPlayers.map((player) => (
 
             <tr key={player.name}>
 
               <td>
 
-                {player.rank ?? "-"}
+                {player.computedRank ?? "-"}
 
               </td>
 
