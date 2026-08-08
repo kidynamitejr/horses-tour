@@ -248,6 +248,25 @@ td {
   height: 45px;
 }
 
+.power-points-card {
+  width: fit-content;
+  max-width: 100%;
+}
+
+.power-points-card .table-scroll {
+  width: fit-content;
+}
+
+.power-points-table {
+  width: auto;
+  min-width: 0;
+}
+
+.power-points-table th,
+.power-points-table td {
+  padding: 14px 20px;
+}
+
 /* POINTS CALCULATOR */
 
 .calc-table {

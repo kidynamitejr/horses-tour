@@ -51,12 +51,30 @@ function Leaderboard() {
 
   })
 
+  const powerRankedPlayers = Object.entries(summaries)
+    .map(([name, s]) => ({ name, ...s }))
+    .sort((a, b) => b.totalPowerScore - a.totalPowerScore)
+    .reduce((acc, player) => {
+
+      if (player.eventsPlayed > 0) {
+        acc.rankCounter += 1
+        acc.players.push({ ...player, computedRank: acc.rankCounter })
+      } else {
+        acc.players.push({ ...player, computedRank: null })
+      }
+
+      return acc
+
+    }, { rankCounter: 0, players: [] }).players
+
   return (
+
+    <>
 
     <section className="card">
 
       <h2>
-        Overall Leaderboard
+        Horsewide Leaderboard
       </h2>
 
       <div className="table-scroll">
@@ -156,6 +174,77 @@ function Leaderboard() {
       </div>
 
     </section>
+
+    <section className="card power-points-card">
+
+      <h2>
+        Power Points Leaderboard
+      </h2>
+
+      <div className="table-scroll">
+
+      <table className="leaderboard-table power-points-table">
+
+        <thead>
+
+          <tr>
+            <th>Rank</th>
+            <th>Player</th>
+            <th>Power Points</th>
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          {powerRankedPlayers.map((player) => (
+
+            <tr key={player.name}>
+
+              <td>
+
+                {player.computedRank ?? "-"}
+
+              </td>
+
+              <td>
+
+                <div className="leaderboard-player">
+
+                  <img
+                    src={`${import.meta.env.BASE_URL}images/players/${playerIds[player.name]}.jpg`}
+                    alt={player.name}
+                    className="leaderboard-avatar"
+                    onError={(e) => {
+                      e.target.src = `${import.meta.env.BASE_URL}images/players/default.jpg`
+                    }}
+                  />
+
+                  {player.name}
+
+                </div>
+
+              </td>
+
+              <td>
+
+                {player.totalPowerScore}
+
+              </td>
+
+            </tr>
+
+          ))}
+
+        </tbody>
+
+      </table>
+
+      </div>
+
+    </section>
+
+    </>
 
   )
 
