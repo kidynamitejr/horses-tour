@@ -87,7 +87,6 @@ function Leaderboard() {
             <th>Rank</th>
             <th>Player</th>
             <th>Ranking Factor</th>
-            <th>Power Points</th>
             <th>Events Played</th>
             <th>Wins</th>
             <th>Runner-Ups</th>
@@ -130,12 +129,6 @@ function Leaderboard() {
               <td>
 
                 {player.avgRankingPoints}
-
-              </td>
-
-              <td>
-
-                {player.totalPowerScore}
 
               </td>
 
