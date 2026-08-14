@@ -177,8 +177,8 @@ function PlayerProfile() {
           </div>
 
           <div className="stat-card">
-            <h3>Matchmaking Points</h3>
-            <p>{summary?.rankingPointsTotal ?? "-"}</p>
+            <h3>Ranking Factor</h3>
+            <p>{summary?.avgRankingPoints ?? "-"}</p>
           </div>
 
           <div className="stat-card">
