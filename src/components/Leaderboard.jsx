@@ -30,11 +30,17 @@ function Leaderboard() {
 
   }, [])
 
+  // Substitute players (name tagged "(Sub)" in the Players sheet) fill in
+  // for someone else's match but shouldn't earn a season ranking of their
+  // own, so they're excluded from both leaderboards here.
+  const rankablePlayers = Object.entries(summaries)
+    .filter(([name]) => !/\(sub\)/i.test(name))
+
   // Rank is computed here from Ranking Factor (AVG Ranking Points)
   // rather than trusting the sheet's own Current Rank column, which is
   // a separate lookup against the old Rankings tab and can drift out
   // of sync with what Match Entry actually calculates.
-  const sortedPlayers = Object.entries(summaries)
+  const sortedPlayers = rankablePlayers
     .map(([name, s]) => ({ name, ...s }))
     .sort((a, b) => b.avgRankingPoints - a.avgRankingPoints)
 
@@ -51,7 +57,7 @@ function Leaderboard() {
 
   })
 
-  const powerRankedPlayers = Object.entries(summaries)
+  const powerRankedPlayers = rankablePlayers
     .map(([name, s]) => ({ name, ...s }))
     .sort((a, b) => b.totalPowerScore - a.totalPowerScore)
     .reduce((acc, player) => {

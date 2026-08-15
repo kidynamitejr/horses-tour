@@ -134,7 +134,7 @@ function Dashboard() {
 
         <h2>Players</h2>
 
-        <h3>{players.length}</h3>
+        <h3>{players.filter((p) => !/\(sub\)/i.test(p.Name)).length}</h3>
 
         <p>Registered Players</p>
 
