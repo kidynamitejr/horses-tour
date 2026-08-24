@@ -8,12 +8,13 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts"
-import { getMatchResults } from "../data/googleSheets"
-import { getTeamRecordCounts } from "../utils/teamRecords"
+import { getMatchEntry } from "../data/googleSheets"
+import { getPlayerSummaries } from "../utils/matchEntry"
 
-function toChartData(counts, field) {
-  return Object.entries(counts)
-    .map(([name, c]) => ({ name, value: c[field] }))
+function toChartData(summaries, field) {
+  return Object.entries(summaries)
+    .filter(([name]) => !/\(sub\)/i.test(name))
+    .map(([name, s]) => ({ name, value: s[field] }))
     .filter((entry) => entry.value > 0)
     .sort((a, b) => b.value - a.value)
 }
@@ -26,13 +27,16 @@ function TourLeaderCharts() {
 
   useEffect(() => {
 
-    getMatchResults().then((data) => {
+    // Wins/Runner Ups/Top 3 come from Match Entry (like the rest of the
+    // site) instead of the old Match Results tab, which stopped being
+    // updated after the first two events.
+    getMatchEntry().then((data) => {
 
-      const counts = getTeamRecordCounts(data)
+      const summaries = getPlayerSummaries(data)
 
-      setWinsData(toChartData(counts, "wins"))
-      setRunnerUpsData(toChartData(counts, "runnerUps"))
-      setTopThreeData(toChartData(counts, "topThree"))
+      setWinsData(toChartData(summaries, "wins"))
+      setRunnerUpsData(toChartData(summaries, "runnerUps"))
+      setTopThreeData(toChartData(summaries, "topThree"))
 
     })
 

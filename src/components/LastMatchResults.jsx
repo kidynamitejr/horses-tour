@@ -83,7 +83,12 @@ function LastMatchResults() {
             }
 
           })
-          .sort((a, b) => b.matchPoints - a.matchPoints)
+          // When players tie on Match Points (most commonly everyone at 0
+          // in last place), break the tie by whoever contributed more.
+          .sort((a, b) =>
+            b.matchPoints - a.matchPoints ||
+            (parseFloat(b.contributions) || 0) - (parseFloat(a.contributions) || 0)
+          )
 
         const event = schedule.find(
           (e) => e["Event ID"] === String(lastEventId)

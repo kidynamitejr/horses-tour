@@ -4,6 +4,13 @@ import { slugify } from "../utils/slugify"
 
 const COURSE_IMAGE_EXTENSIONS = ["jpg", "jpeg", "png", "webp"]
 
+function formatOverPar(value) {
+  if (value === "" || value === null || value === undefined) return value
+  const num = Number(value)
+  if (isNaN(num)) return value
+  return num >= 0 ? `+${value}` : value
+}
+
 function CourseImage({ course }) {
 
   const [extIndex, setExtIndex] = useState(0)
@@ -42,15 +49,12 @@ function PastMatches() {
           getMatchEntry(),
         ])
 
-        const today = new Date()
-        today.setHours(0, 0, 0, 0)
-
-        const pastEvents = schedule.filter((event) => {
-          const eventDate = new Date(event.Date)
-          if (isNaN(eventDate)) return false
-          eventDate.setHours(0, 0, 0, 0)
-          return eventDate < today
-        })
+        // An event is "past" once it's marked Played in the sheet,
+        // rather than purely by date - otherwise an event played today
+        // would be excluded by a strict "before today" date check.
+        const pastEvents = schedule.filter(
+          (event) => event.Status && event.Status.trim().toLowerCase() === "played"
+        )
 
         const grouped = pastEvents
           .map((event) => {
@@ -171,7 +175,7 @@ function PastMatches() {
                     {match.teams.map((team) => (
                       <li key={team.team}>
                         <strong>{team.finish}.</strong> {team.players.join(" / ")}
-                        <span className="match-score"> — Score: {team.score}</span>
+                        <span className="match-score"> — Score: {formatOverPar(team.score)}</span>
                       </li>
                     ))}
 

@@ -12,11 +12,9 @@ import {
 
 import {
   getPlayers,
-  getPlayerHistory,
-  getContributions,
+  getSchedule,
   getMatchEntry,
 } from "../data/googleSheets"
-import { getPlayedContributions } from "../utils/matchmakingPoints"
 import { getPlayerSummaries } from "../utils/matchEntry"
 
 function PlayerProfile() {
@@ -37,8 +35,7 @@ function PlayerProfile() {
     async function loadPlayer() {
       try {
         const players = await getPlayers()
-        const playerHistory = await getPlayerHistory()
-        const contributions = await getContributions()
+        const schedule = await getSchedule()
         const matchEntry = await getMatchEntry()
 
         const foundPlayer = players.find(
@@ -52,55 +49,64 @@ function PlayerProfile() {
         if (foundPlayer) {
 
           const summaries = getPlayerSummaries(matchEntry)
+          const foundSummary = summaries[foundPlayer.Name] || null
 
-          setSummary(summaries[foundPlayer.Name] || null)
+          // Rank is computed live from Ranking Factor (AVG Ranking Points)
+          // across every non-sub player, the same way the Horsewide
+          // Leaderboard does, rather than trusting Match Entry's own
+          // Current Rank column - that formula can be blank for players
+          // who were added after it was last dragged down.
+          const rankedPlayers = Object.entries(summaries)
+            .filter(([n]) => !/\(sub\)/i.test(n))
+            .map(([n, s]) => ({ name: n, ...s }))
+            .filter((p) => p.eventsPlayed > 0)
+            .sort((a, b) => b.avgRankingPoints - a.avgRankingPoints)
 
-          const playedContributions = getPlayedContributions(contributions).filter(
-            (c) =>
-              c.Player.trim().toLowerCase() ===
-              foundPlayer.Name.trim().toLowerCase()
+          const liveRankIndex = rankedPlayers.findIndex(
+            (p) => p.name === foundPlayer.Name.trim()
           )
 
-          const playedEventIds = new Set(
-            playedContributions.map((c) => c["Event ID"])
+          setSummary(
+            foundSummary
+              ? { ...foundSummary, rank: liveRankIndex >= 0 ? liveRankIndex + 1 : null }
+              : null
           )
 
-          // Best/Worst Tournament and Highest/Lowest Round are computed
-          // from Contributions (played rows only) instead of the Player
-          // Stats sheet's own columns, since a future event's phantom
-          // 0.0 row would otherwise always win the "worst" comparison.
+          // Event names/dates come from the Schedule tab instead of Player
+          // History, since Player History stopped being updated after the
+          // first two events and is missing everything played since.
           const eventNameById = {}
           const eventDateById = {}
 
-          playerHistory.forEach((h) => {
-            eventNameById[h["Event ID"]] = h["Event Name"]
-            eventDateById[h["Event ID"]] = h.Date
+          schedule.forEach((e) => {
+            eventNameById[e["Event ID"]] = e["Event Name"].trim()
+            eventDateById[e["Event ID"]] = e.Date
           })
 
-          // Points scored per match, taken from Match Entry (Match
-          // Ranking Points) rather than Player History's running
-          // average - only actually played events are included.
-          const playedMatchEntryRows = matchEntry
+          // A played row is one with Contributions filled in - future/
+          // unplayed event rows in Match Entry are dragged-down formula
+          // rows with blanks there.
+          const playedRows = matchEntry
             .filter(
               (row) =>
                 row.Player &&
                 row.Player.trim().toLowerCase() ===
                   foundPlayer.Name.trim().toLowerCase() &&
-                playedEventIds.has(row["Event ID"])
+                row.Contributions
             )
             .sort((a, b) => Number(a["Event ID"]) - Number(b["Event ID"]))
 
           setPointsHistory(
-            playedMatchEntryRows.map((row) => ({
+            playedRows.map((row) => ({
               tournament: `${eventNameById[row["Event ID"]] || `Event ${row["Event ID"]}`} (${eventDateById[row["Event ID"]] || ""})`,
               points: parseFloat(row["Match Ranking Points"]) || 0,
             }))
           )
 
-          const roundsWithPoints = playedContributions
-            .map((c) => ({
-              eventId: c["Event ID"],
-              points: parseFloat(c["Match Points"]),
+          const roundsWithPoints = playedRows
+            .map((row) => ({
+              eventId: row["Event ID"],
+              points: parseFloat(row["Match Ranking Points"]),
             }))
             .filter((r) => !isNaN(r.points))
 

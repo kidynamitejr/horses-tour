@@ -2,11 +2,47 @@ import { useEffect, useState } from "react"
 import { getPlayers, getMatchEntry } from "../data/googleSheets"
 import { getPlayerSummaries } from "../utils/matchEntry"
 
+// Ranks every player by their average Match Ranking Points using only
+// played rows through (and including) maxEventId - lets us reconstruct
+// what the Ranking Factor standings looked like as of a past event, since
+// Match Entry only stores the final season-cumulative average on every row.
+function getRanksThroughEvent(playedRows, maxEventId) {
+
+  const totals = {}
+
+  playedRows
+    .filter((row) => Number(row["Event ID"]) <= maxEventId)
+    .forEach((row) => {
+
+      const name = row.Player.trim()
+
+      if (!totals[name]) totals[name] = { sum: 0, count: 0 }
+
+      totals[name].sum += parseFloat(row["Match Ranking Points"]) || 0
+      totals[name].count += 1
+
+    })
+
+  const ranked = Object.entries(totals)
+    .map(([name, t]) => ({ name, avg: t.sum / t.count }))
+    .sort((a, b) => b.avg - a.avg)
+
+  const rankByName = {}
+
+  ranked.forEach((player, index) => {
+    rankByName[player.name] = index + 1
+  })
+
+  return rankByName
+
+}
+
 function Leaderboard() {
 
   const [players, setPlayers] = useState([])
   const [playerIds, setPlayerIds] = useState({})
   const [summaries, setSummaries] = useState({})
+  const [matchEntry, setMatchEntry] = useState([])
 
   useEffect(() => {
 
@@ -24,6 +60,7 @@ function Leaderboard() {
 
     getMatchEntry().then((data) => {
 
+      setMatchEntry(data)
       setSummaries(getPlayerSummaries(data))
 
     })
@@ -54,6 +91,42 @@ function Leaderboard() {
     }
 
     return { ...player, computedRank: null }
+
+  })
+
+  // Movement compares each player's current Ranking Factor rank against
+  // where they ranked before the most recently played event. Only players
+  // who actually played in that event get a movement value - otherwise
+  // someone who sat out could appear to "drop" just because another
+  // player's result pushed past them in the standings.
+  const playedRows = matchEntry.filter((row) => row.Player && row.Contributions)
+
+  const playedEventIds = [...new Set(playedRows.map((row) => Number(row["Event ID"])))]
+    .sort((a, b) => a - b)
+
+  const lastEventId = playedEventIds[playedEventIds.length - 1]
+  const previousEventId = playedEventIds[playedEventIds.length - 2]
+
+  const playedLastEvent = new Set(
+    playedRows
+      .filter((row) => Number(row["Event ID"]) === lastEventId)
+      .map((row) => row.Player.trim())
+  )
+
+  const previousRanks = previousEventId !== undefined
+    ? getRanksThroughEvent(playedRows, previousEventId)
+    : {}
+
+  const rankedPlayersWithMovement = rankedPlayers.map((player) => {
+
+    const previousRank = previousRanks[player.name]
+
+    const movement =
+      player.computedRank && previousRank !== undefined && playedLastEvent.has(player.name)
+        ? previousRank - player.computedRank
+        : null
+
+    return { ...player, movement }
 
   })
 
@@ -96,14 +169,14 @@ function Leaderboard() {
             <th>Events Played</th>
             <th>Wins</th>
             <th>Runner-Ups</th>
-            <th>Top 3</th>
+            <th>Movement</th>
           </tr>
 
         </thead>
 
         <tbody>
 
-          {rankedPlayers.map((player) => (
+          {rankedPlayersWithMovement.map((player) => (
 
             <tr key={player.name}>
 
@@ -158,7 +231,13 @@ function Leaderboard() {
 
               <td>
 
-                {player.topThree}
+                {player.movement === null || player.movement === 0 ? (
+                  <span className="movement-neutral">—</span>
+                ) : player.movement > 0 ? (
+                  <span className="movement-up">▲ {player.movement}</span>
+                ) : (
+                  <span className="movement-down">▼ {Math.abs(player.movement)}</span>
+                )}
 
               </td>
 

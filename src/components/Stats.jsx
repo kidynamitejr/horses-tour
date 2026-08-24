@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react"
-import { getPlayerStats, getMatchResults, getContributions, getMatchEntry } from "../data/googleSheets"
-import { getTeamRecordCounts } from "../utils/teamRecords"
+import { getPlayerStats, getContributions, getMatchEntry } from "../data/googleSheets"
 import { getMatchmakingPointsByPlayer } from "../utils/matchmakingPoints"
 import { getPlayerSummaries } from "../utils/matchEntry"
 
@@ -81,9 +80,8 @@ function Stats() {
 
       try {
 
-        const [playerStats, matchResults, contributions, matchEntry] = await Promise.all([
+        const [playerStats, contributions, matchEntry] = await Promise.all([
           getPlayerStats(),
-          getMatchResults(),
           getContributions(),
           getMatchEntry(),
         ])
@@ -106,19 +104,22 @@ function Stats() {
           Object.entries(matchmakingPointsByPlayer).map(([name, value]) => ({ name, value }))
         )
 
-        const teamCounts = getTeamRecordCounts(matchResults)
-        const countEntries = Object.entries(teamCounts)
+        // Wins/Runner Ups/Top 3 come from Match Entry (like the rest of
+        // the site) instead of the old Match Results tab, which stopped
+        // being updated after the first two events.
+        const rankableEntries = Object.entries(summaries)
+          .filter(([name]) => !/\(sub\)/i.test(name))
 
         const wins = getLeadersFromEntries(
-          countEntries.map(([name, c]) => ({ name, value: c.wins }))
+          rankableEntries.map(([name, s]) => ({ name, value: s.wins }))
         )
 
         const runnerUps = getLeadersFromEntries(
-          countEntries.map(([name, c]) => ({ name, value: c.runnerUps }))
+          rankableEntries.map(([name, s]) => ({ name, value: s.runnerUps }))
         )
 
         const topThree = getLeadersFromEntries(
-          countEntries.map(([name, c]) => ({ name, value: c.topThree }))
+          rankableEntries.map(([name, s]) => ({ name, value: s.topThree }))
         )
 
         const combined = []

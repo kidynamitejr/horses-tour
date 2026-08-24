@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
-import { getPlayers, getPlayerStats } from "../data/googleSheets"
+import { getPlayers, getMatchEntry } from "../data/googleSheets"
+import { getPlayerSummaries } from "../utils/matchEntry"
 
 function Players() {
 
   const [players, setPlayers] = useState([])
-  const [statsByName, setStatsByName] = useState({})
+  const [summaries, setSummaries] = useState({})
 
   useEffect(() => {
 
@@ -15,15 +16,9 @@ function Players() {
 
     })
 
-    getPlayerStats().then((data) => {
+    getMatchEntry().then((data) => {
 
-      const map = {}
-
-      data.forEach((stat) => {
-        map[stat.Player.trim().toLowerCase()] = stat
-      })
-
-      setStatsByName(map)
+      setSummaries(getPlayerSummaries(data))
 
     })
 
@@ -41,7 +36,7 @@ function Players() {
 
         {players.map((player) => {
 
-          const stats = statsByName[player.Name.trim().toLowerCase()]
+          const summary = summaries[player.Name.trim()]
 
           return (
 
@@ -67,11 +62,11 @@ function Players() {
                 </h3>
 
                 <p>
-                  Wins: {stats ? stats.Wins : "0"}
+                  Wins: {summary ? summary.wins : "0"}
                 </p>
 
                 <p>
-                  Runner Ups: {stats ? stats["Runner Ups"] : "0"}
+                  Runner Ups: {summary ? summary.runnerUps : "0"}
                 </p>
 
               </div>

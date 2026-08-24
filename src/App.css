@@ -544,11 +544,13 @@ tr:hover {
   text-align: left;
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
 }
 
 .dashboard-team-list li {
-  font-size: 11px;
+  font-size: 9px;
   color: #444;
   padding: 0;
   line-height: 1.05;
