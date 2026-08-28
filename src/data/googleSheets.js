@@ -43,6 +43,9 @@ const CONTRIBUTIONS_URL =
 const MATCH_ENTRY_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vSaRzObvMpmjQNGdhCQZUoiwazKtbfL2t5tnf7n7nr34NvQQYrL9_dvNEJ_U1s0W5FMA_6V9N9S0GdY/pub?gid=1996241982&single=true&output=csv"
 
+const TEAM_PAIRING_URL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vSaRzObvMpmjQNGdhCQZUoiwazKtbfL2t5tnf7n7nr34NvQQYrL9_dvNEJ_U1s0W5FMA_6V9N9S0GdY/pub?gid=1241601970&single=true&output=csv"
+
 // ==============================
 // CSV PARSER
 // ==============================
@@ -193,4 +196,13 @@ export async function getContributions() {
 
 export async function getMatchEntry() {
   return await readCSV(MATCH_ENTRY_URL)
+}
+
+// Returns the Team Pairing tab as a raw grid (array of row arrays)
+// instead of header-keyed objects, since that tab stacks several small
+// tables (name-swap list, Auto Matchmaking, Hard Key Matchmaking) rather
+// than having one table with a single header row.
+export async function getTeamPairingGrid() {
+  const response = await axios.get(TEAM_PAIRING_URL)
+  return parseCSV(response.data.trim())
 }

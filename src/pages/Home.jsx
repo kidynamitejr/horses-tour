@@ -1,4 +1,5 @@
 import Dashboard from "../components/Dashboard"
+import NextEventFeature from "../components/NextEventFeature"
 import LastMatchResults from "../components/LastMatchResults"
 import News from "../components/News"
 import HottestPlayer from "../components/HottestPlayer"
@@ -13,6 +14,8 @@ function Home() {
           Competitive scramble golf. Track rankings, stats, and history.
         </p>
       </section>
+
+      <NextEventFeature />
 
       <Dashboard />
 
