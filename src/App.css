@@ -649,12 +649,88 @@ tr:hover {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   transition: .25s;
+  cursor: pointer;
 }
 
 .next-event-matchup-card:hover {
   background: rgba(255,255,255,.2);
   transform: translateY(-5px);
   box-shadow: 0 14px 30px rgba(0,0,0,.25);
+}
+
+.next-event-favored {
+  border: 2px solid #d9b64a;
+  box-shadow: 0 0 0 3px rgba(217,182,74,.25), 0 14px 30px rgba(0,0,0,.25);
+}
+
+.next-event-favored-badge {
+  position: absolute;
+  top: -11px;
+  right: 16px;
+  background: #003b5c;
+  color: #d9b64a;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid rgba(217,182,74,.6);
+  box-shadow: 0 4px 10px rgba(0,0,0,.25);
+  white-space: nowrap;
+}
+
+.next-event-detail-block {
+  margin-bottom: 14px;
+  text-align: left;
+}
+
+.next-event-detail-block:last-of-type {
+  margin-bottom: 0;
+}
+
+.next-event-detail-block h4 {
+  margin: 0 0 6px;
+  color: #d9b64a;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-family: "Lato", Arial, Helvetica, sans-serif;
+}
+
+.next-event-detail-block p {
+  margin: 0;
+  color: #f0f3f6;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.next-event-first-pairing {
+  margin: 0;
+  color: #f0f3f6;
+  font-size: 13px;
+  font-style: italic;
+}
+
+.next-event-history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  color: #f0f3f6;
+  font-size: 13px;
+}
+
+.next-event-history-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(255,255,255,.15);
+}
+
+.next-event-history-list li:last-child {
+  border-bottom: none;
 }
 
 .next-event-team-tag {
@@ -686,6 +762,28 @@ tr:hover {
   gap: 8px;
   flex: 1;
   min-width: 0;
+  text-decoration: none;
+}
+
+/* Hover/link affordance only applies inside the team detail modal,
+   where the headshot is an actual <a> - on the collapsed card it's a
+   plain <div>, since the whole card (not the headshot) is what's
+   clickable there. */
+a.next-event-player {
+  cursor: pointer;
+  transition: transform .2s;
+}
+
+a.next-event-player:hover {
+  transform: translateY(-3px);
+}
+
+a.next-event-player:hover .next-event-avatar {
+  border-color: #d9b64a;
+}
+
+a.next-event-player:hover span {
+  text-decoration: underline;
 }
 
 .next-event-avatar {
@@ -695,6 +793,7 @@ tr:hover {
   object-fit: cover;
   border: 2px solid rgba(255,255,255,.85);
   box-shadow: 0 4px 12px rgba(0,0,0,.35);
+  transition: border-color .2s;
 }
 
 .next-event-player span {
@@ -704,6 +803,16 @@ tr:hover {
   text-align: center;
   line-height: 1.2;
   text-shadow: 0 1px 4px rgba(0,0,0,.6);
+}
+
+.next-event-player-large .next-event-avatar {
+  width: 88px;
+  height: 88px;
+  border-width: 3px;
+}
+
+.next-event-player-large span {
+  font-size: 15px;
 }
 
 .next-event-teammate-divider {
@@ -730,6 +839,134 @@ tr:hover {
 .next-event-empty p {
   color: #666;
   margin: 0;
+}
+
+/* NEXT EVENT TEAM DETAIL MODAL */
+
+@keyframes next-event-modal-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes next-event-modal-pop-in {
+  from { opacity: 0; transform: translateY(14px) scale(.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.next-event-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,10,18,.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 1000;
+  animation: next-event-modal-fade-in .2s ease;
+}
+
+.next-event-modal {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  max-height: 85vh;
+  overflow-y: auto;
+  background:
+    radial-gradient(circle at 15% -10%, rgba(217,182,74,.18) 0%, transparent 45%),
+    linear-gradient(160deg, #003b5c 0%, #012c45 100%);
+  border: 1px solid rgba(217,182,74,.4);
+  border-radius: 18px;
+  padding: 38px 28px 28px;
+  box-shadow: 0 24px 60px rgba(0,0,0,.45);
+  text-align: center;
+  animation: next-event-modal-pop-in .25s cubic-bezier(.2,.9,.3,1.2);
+}
+
+.next-event-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,.12);
+  color: white;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background .2s;
+}
+
+.next-event-modal-close:hover {
+  background: rgba(255,255,255,.25);
+}
+
+.next-event-modal-header {
+  margin-bottom: 24px;
+}
+
+.next-event-modal-eyebrow {
+  margin: 0 0 12px;
+  color: rgba(255,255,255,.6);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: "Lato", Arial, Helvetica, sans-serif;
+}
+
+.next-event-modal-team-tag {
+  position: static;
+  display: inline-block;
+  font-size: 13px;
+  padding: 6px 18px;
+}
+
+.next-event-modal-favored-badge {
+  position: static;
+  display: inline-block;
+  margin: 0 0 0 8px;
+}
+
+.next-event-modal-players {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 26px;
+  margin: 0 0 6px;
+}
+
+.next-event-modal-divider {
+  margin-top: 30px;
+  font-size: 24px;
+  text-shadow: 0 0 12px rgba(217,182,74,.6);
+}
+
+.next-event-player-ranking {
+  color: #d9b64a !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+  text-shadow: none !important;
+}
+
+.next-event-tagline {
+  margin: 18px 0 26px;
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 30px;
+  padding: 8px 18px;
+  display: inline-block;
+}
+
+.next-event-history-placement {
+  color: #d9b64a;
+  font-weight: 700;
 }
 
 /* FEATURED PLAYER */

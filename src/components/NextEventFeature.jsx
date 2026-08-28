@@ -1,12 +1,78 @@
 import { useEffect, useState } from "react"
+import { createPortal } from "react-dom"
+import { Link } from "react-router-dom"
 import {
   getPlayers,
   getSchedule,
   getTeamPairingGrid,
+  getMatchEntry,
 } from "../data/googleSheets"
+import { getPlayerSummaries } from "../utils/matchEntry"
 import { slugify } from "../utils/slugify"
 
 const COURSE_IMAGE_EXTENSIONS = ["jpg", "jpeg", "png", "webp"]
+
+function ordinal(n) {
+  const num = Number(n)
+  if (isNaN(num)) return n
+  const rem100 = num % 100
+  if (rem100 >= 11 && rem100 <= 13) return `${num}th`
+  switch (num % 10) {
+    case 1: return `${num}st`
+    case 2: return `${num}nd`
+    case 3: return `${num}rd`
+    default: return `${num}th`
+  }
+}
+
+// A playful tier label based on the team's combined Ranking Factor -
+// pure flavor text, doesn't affect the Favored calculation itself.
+function getPairingTagline(combined) {
+  if (combined >= 4.5) return "🔥 Elite Pairing"
+  if (combined >= 3) return "💪 Strong Contenders"
+  if (combined >= 1.5) return "⚡ Building Momentum"
+  return "🌱 Wildcard Duo"
+}
+
+// Small medal callout for a top-3 finish, otherwise just the ordinal.
+function placementBadge(placement) {
+  const num = Number(placement)
+  if (num === 1) return "🥇"
+  if (num === 2) return "🥈"
+  if (num === 3) return "🥉"
+  return null
+}
+
+// Finds every past played event where both of these two players were on
+// the same team, and what place that team finished.
+function getPartnershipHistory(matchEntry, playerA, playerB) {
+
+  const byEventTeam = {}
+
+  matchEntry.forEach((row) => {
+
+    if (!row.Player || !row.Contributions) return
+
+    const key = `${row["Event ID"]}|${row.Team}`
+
+    if (!byEventTeam[key]) byEventTeam[key] = []
+
+    byEventTeam[key].push(row)
+
+  })
+
+  return Object.values(byEventTeam)
+    .filter((rows) => {
+      const names = rows.map((r) => r.Player.trim())
+      return names.includes(playerA) && names.includes(playerB)
+    })
+    .map((rows) => ({
+      eventId: rows[0]["Event ID"],
+      placement: rows[0].Placement,
+    }))
+    .sort((a, b) => Number(a.eventId) - Number(b.eventId))
+
+}
 
 function CourseBackground({ course }) {
 
@@ -29,12 +95,16 @@ function CourseBackground({ course }) {
 
 }
 
-function PlayerChip({ name, playerIds }) {
+// On the collapsed matchup card, the headshot is plain (clicking
+// anywhere on the card opens the team detail modal instead). Inside
+// that modal, the headshot + name become a link straight to the
+// player's profile page - that's the only place the link is available.
+function PlayerChip({ name, playerIds, large, linked, ranking }) {
 
   const id = playerIds[name]
 
-  return (
-    <div className="next-event-player">
+  const content = (
+    <>
       <img
         src={`${import.meta.env.BASE_URL}images/players/${id}.jpg`}
         alt={name}
@@ -44,7 +114,137 @@ function PlayerChip({ name, playerIds }) {
         }}
       />
       <span>{name}</span>
-    </div>
+      {ranking !== undefined && (
+        <span className="next-event-player-ranking">
+          {ranking.toFixed(1)} Ranking Factor
+        </span>
+      )}
+    </>
+  )
+
+  const className = `next-event-player${large ? " next-event-player-large" : ""}`
+
+  if (!linked) {
+    return <div className={className}>{content}</div>
+  }
+
+  return (
+    <Link
+      to={`/player-profile/${id}`}
+      className={className}
+      onClick={(e) => e.stopPropagation()}
+    >
+      {content}
+    </Link>
+  )
+
+}
+
+function TeamDetailModal({ modalTeam, highestCombined, eventNameById, playerIds, summaries, onClose }) {
+
+  return createPortal(
+
+    <div className="next-event-modal-overlay" onClick={onClose}>
+
+      <div className="next-event-modal" onClick={(e) => e.stopPropagation()}>
+
+        <button
+          type="button"
+          className="next-event-modal-close"
+          onClick={onClose}
+          aria-label="Close"
+        >
+          ×
+        </button>
+
+        <div className="next-event-modal-header">
+
+          <p className="next-event-modal-eyebrow">Matchup Preview</p>
+
+          <span className="next-event-team-tag next-event-modal-team-tag">
+            {modalTeam.team}
+          </span>
+
+          {modalTeam.isFavored && (
+            <span className="next-event-favored-badge next-event-modal-favored-badge">
+              ★ Favored to Win
+            </span>
+          )}
+
+        </div>
+
+        <div className="next-event-modal-players">
+
+          <PlayerChip
+            name={modalTeam.teamPlayers[0]}
+            playerIds={playerIds}
+            large
+            linked
+            ranking={summaries[modalTeam.teamPlayers[0]]?.avgRankingPoints}
+          />
+
+          {modalTeam.teamPlayers.length > 1 && (
+            <>
+              <span className="next-event-teammate-divider next-event-modal-divider">&amp;</span>
+              <PlayerChip
+                name={modalTeam.teamPlayers[1]}
+                playerIds={playerIds}
+                large
+                linked
+                ranking={summaries[modalTeam.teamPlayers[1]]?.avgRankingPoints}
+              />
+            </>
+          )}
+
+        </div>
+
+        <p className="next-event-tagline">{getPairingTagline(modalTeam.combined)}</p>
+
+        <div className="next-event-detail-block">
+
+          <h4>🏌️ {modalTeam.isFavored ? "Favored to Win" : "Combined Ranking Factor"}</h4>
+
+          <p>
+            This team's combined Ranking Factor is{" "}
+            <strong>{modalTeam.combined.toFixed(1)}</strong> — the average of
+            both players' season Ranking Factor.
+            {modalTeam.isFavored
+              ? " It's the highest combined average of any team in this matchup, making them the favorite to finish on top."
+              : ` ${modalTeam.leaderTeamLabel} leads the field at ${highestCombined.toFixed(1)}.`}
+          </p>
+
+        </div>
+
+        <div className="next-event-detail-block">
+
+          <h4>⛳ Partnership History</h4>
+
+          {modalTeam.history.length === 0 ? (
+            <p className="next-event-first-pairing">
+              🤝 First Time Teaming Up! No shared history yet — this is a
+              fresh pairing.
+            </p>
+          ) : (
+            <ul className="next-event-history-list">
+              {modalTeam.history.map((h) => (
+                <li key={h.eventId}>
+                  <span>{eventNameById[h.eventId] || `Event ${h.eventId}`}</span>
+                  <span className="next-event-history-placement">
+                    {placementBadge(h.placement)} {ordinal(h.placement)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+
+        </div>
+
+      </div>
+
+    </div>,
+
+    document.body
+
   )
 
 }
@@ -54,6 +254,9 @@ function NextEventFeature() {
   const [playerIds, setPlayerIds] = useState({})
   const [schedule, setSchedule] = useState([])
   const [teamPairingGrid, setTeamPairingGrid] = useState([])
+  const [summaries, setSummaries] = useState({})
+  const [matchEntry, setMatchEntry] = useState([])
+  const [modalTeam, setModalTeam] = useState(null)
 
   useEffect(() => {
 
@@ -71,6 +274,11 @@ function NextEventFeature() {
 
     getSchedule().then(setSchedule)
     getTeamPairingGrid().then(setTeamPairingGrid)
+
+    getMatchEntry().then((data) => {
+      setMatchEntry(data)
+      setSummaries(getPlayerSummaries(data))
+    })
 
   }, [])
 
@@ -101,83 +309,147 @@ function NextEventFeature() {
   // hand-editable source of truth for who's actually playing next,
   // including sub alternation. Keeps reading as long as the Team column
   // keeps having a value, so more teams are picked up automatically.
-  const nextEventTeams = []
+  const rawTeams = []
 
   for (let i = 13; i < teamPairingGrid.length; i++) {
     const row = teamPairingGrid[i]
 
     if (!row || !row[2]) break
 
-    nextEventTeams.push([row[2], [row[3], row[4]].filter(Boolean)])
+    rawTeams.push([row[2], [row[3], row[4]].filter(Boolean)])
   }
 
-  if (!nextEvent) {
-    return (
-      <section className="next-event-feature next-event-empty">
-        <h2>No Upcoming Event</h2>
-        <p>Schedule Coming Soon</p>
-      </section>
-    )
-  }
+  const eventNameById = {}
+
+  schedule.forEach((e) => {
+    eventNameById[e["Event ID"]] = e["Event Name"].trim()
+  })
+
+  // Favored team = whichever pairing has the highest combined Ranking
+  // Factor (average of both players' season Ranking Factor). A player
+  // who hasn't been ranked yet (brand new, no events played) counts as
+  // 0.0 toward the average.
+  const teamsWithScores = rawTeams.map(([team, teamPlayers]) => {
+
+    const scores = teamPlayers.map((p) => summaries[p]?.avgRankingPoints ?? 0)
+
+    const combined = scores.length > 0
+      ? scores.reduce((a, b) => a + b, 0) / scores.length
+      : 0
+
+    const history = teamPlayers.length > 1
+      ? getPartnershipHistory(matchEntry, teamPlayers[0], teamPlayers[1])
+      : []
+
+    return { team, teamPlayers, combined, history }
+
+  })
+
+  const highestCombined = teamsWithScores.length > 0
+    ? Math.max(...teamsWithScores.map((t) => t.combined))
+    : 0
+
+  const leaderTeamLabel = teamsWithScores.find((t) => t.combined === highestCombined)?.team ?? ""
+
+  const nextEventTeams = teamsWithScores.map((t) => ({
+    ...t,
+    isFavored: t.combined === highestCombined && t.combined > 0,
+    leaderTeamLabel,
+  }))
 
   return (
 
     <section className="next-event-feature">
 
-      <CourseBackground course={nextEvent.Course} />
+      <CourseBackground course={nextEvent?.Course} />
 
       <div className="next-event-overlay" />
 
       <div className="next-event-content">
 
-        <p className="next-event-eyebrow">Up Next</p>
+        {!nextEvent ? (
 
-        <h2 className="next-event-title">{nextEvent["Event Name"]}</h2>
+          <>
+            <p className="next-event-eyebrow">Up Next</p>
+            <h2 className="next-event-title">No Upcoming Event</h2>
+            <p className="next-event-meta">Schedule Coming Soon</p>
+          </>
 
-        <p className="next-event-meta">
-          {nextEvent.Date}
-          {nextEvent.Course && <span className="next-event-dot">•</span>}
-          {nextEvent.Course}
-          {nextEvent["Tee Times"] && nextEvent["Tee Times"] !== "TBD" && (
-            <>
-              <span className="next-event-dot">•</span>
-              {nextEvent["Tee Times"]}
-            </>
-          )}
-        </p>
+        ) : (
 
-        {nextEventTeams.length > 0 && (
+          <>
 
-          <div className="next-event-matchups">
+            <p className="next-event-eyebrow">Up Next</p>
 
-            {nextEventTeams.map(([team, teamPlayers]) => (
+            <h2 className="next-event-title">{nextEvent["Event Name"]}</h2>
 
-              <div className="next-event-matchup-card" key={team}>
+            <p className="next-event-meta">
+              {nextEvent.Date}
+              {nextEvent.Course && <span className="next-event-dot">•</span>}
+              {nextEvent.Course}
+              {nextEvent["Tee Times"] && nextEvent["Tee Times"] !== "TBD" && (
+                <>
+                  <span className="next-event-dot">•</span>
+                  {nextEvent["Tee Times"]}
+                </>
+              )}
+            </p>
 
-                <span className="next-event-team-tag">{team}</span>
+            {nextEventTeams.length > 0 && (
 
-                <div className="next-event-matchup-players">
+              <div className="next-event-matchups">
 
-                  <PlayerChip name={teamPlayers[0]} playerIds={playerIds} />
+                {nextEventTeams.map((t) => (
 
-                  {teamPlayers.length > 1 && (
-                    <>
-                      <span className="next-event-teammate-divider">&amp;</span>
-                      <PlayerChip name={teamPlayers[1]} playerIds={playerIds} />
-                    </>
-                  )}
+                  <div
+                    className={`next-event-matchup-card${t.isFavored ? " next-event-favored" : ""}`}
+                    key={t.team}
+                    onClick={() => setModalTeam(t)}
+                  >
 
-                </div>
+                    <span className="next-event-team-tag">{t.team}</span>
+
+                    {t.isFavored && (
+                      <span className="next-event-favored-badge">★ Favored</span>
+                    )}
+
+                    <div className="next-event-matchup-players">
+
+                      <PlayerChip name={t.teamPlayers[0]} playerIds={playerIds} />
+
+                      {t.teamPlayers.length > 1 && (
+                        <>
+                          <span className="next-event-teammate-divider">&amp;</span>
+                          <PlayerChip name={t.teamPlayers[1]} playerIds={playerIds} />
+                        </>
+                      )}
+
+                    </div>
+
+                  </div>
+
+                ))}
 
               </div>
 
-            ))}
+            )}
 
-          </div>
+          </>
 
         )}
 
       </div>
+
+      {modalTeam && (
+        <TeamDetailModal
+          modalTeam={modalTeam}
+          highestCombined={highestCombined}
+          eventNameById={eventNameById}
+          playerIds={playerIds}
+          summaries={summaries}
+          onClose={() => setModalTeam(null)}
+        />
+      )}
 
     </section>
 
