@@ -15,9 +15,9 @@ function Home() {
         </p>
       </section>
 
-      <NextEventFeature />
-
       <Dashboard />
+
+      <NextEventFeature />
 
       <LastMatchFeature />
 
