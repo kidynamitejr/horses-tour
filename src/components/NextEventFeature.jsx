@@ -9,21 +9,9 @@ import {
 } from "../data/googleSheets"
 import { getPlayerSummaries } from "../utils/matchEntry"
 import { slugify } from "../utils/slugify"
+import { ordinal } from "../utils/ordinal"
 
 const COURSE_IMAGE_EXTENSIONS = ["jpg", "jpeg", "png", "webp"]
-
-function ordinal(n) {
-  const num = Number(n)
-  if (isNaN(num)) return n
-  const rem100 = num % 100
-  if (rem100 >= 11 && rem100 <= 13) return `${num}th`
-  switch (num % 10) {
-    case 1: return `${num}st`
-    case 2: return `${num}nd`
-    case 3: return `${num}rd`
-    default: return `${num}th`
-  }
-}
 
 // A playful tier label based on the team's combined Ranking Factor -
 // pure flavor text, doesn't affect the Favored calculation itself.

@@ -1,15 +1,9 @@
 import { useEffect, useState } from "react"
-import { getSchedule, getMatchEntry } from "../data/googleSheets"
+import { getSchedule, getMatchEntry, getPlayers } from "../data/googleSheets"
 import { slugify } from "../utils/slugify"
+import MatchResultsView from "./MatchResultsView"
 
 const COURSE_IMAGE_EXTENSIONS = ["jpg", "jpeg", "png", "webp"]
-
-function formatOverPar(value) {
-  if (value === "" || value === null || value === undefined) return value
-  const num = Number(value)
-  if (isNaN(num)) return value
-  return num >= 0 ? `+${value}` : value
-}
 
 function CourseImage({ course }) {
 
@@ -35,8 +29,11 @@ function CourseImage({ course }) {
 function PastMatches() {
 
   const [matches, setMatches] = useState([])
+  const [schedule, setSchedule] = useState([])
+  const [matchEntry, setMatchEntry] = useState([])
+  const [playerIds, setPlayerIds] = useState({})
   const [loading, setLoading] = useState(true)
-  const [expandedId, setExpandedId] = useState(null)
+  const [expandedEventId, setExpandedEventId] = useState(null)
 
   useEffect(() => {
 
@@ -44,64 +41,31 @@ function PastMatches() {
 
       try {
 
-        const [schedule, matchEntry] = await Promise.all([
+        const [scheduleData, matchEntryData, players] = await Promise.all([
           getSchedule(),
           getMatchEntry(),
+          getPlayers(),
         ])
+
+        setSchedule(scheduleData)
+        setMatchEntry(matchEntryData)
+
+        const idsByName = {}
+
+        players.forEach((player) => {
+          idsByName[player.Name] = player["Player ID"]
+        })
+
+        setPlayerIds(idsByName)
 
         // An event is "past" once it's marked Played in the sheet,
         // rather than purely by date - otherwise an event played today
         // would be excluded by a strict "before today" date check.
-        const pastEvents = schedule.filter(
-          (event) => event.Status && event.Status.trim().toLowerCase() === "played"
-        )
+        const pastEvents = scheduleData
+          .filter((event) => event.Status && event.Status.trim().toLowerCase() === "played")
+          .sort((a, b) => new Date(b.Date) - new Date(a.Date))
 
-        const grouped = pastEvents
-          .map((event) => {
-
-            const eventId = event["Event ID"]
-
-            const rowsForEvent = matchEntry.filter(
-              (row) =>
-                row["Event ID"] === eventId &&
-                row["Team Score"] &&
-                row.Placement &&
-                !isNaN(Number(row.Placement))
-            )
-
-            const teamsByLetter = rowsForEvent.reduce((teams, row) => {
-
-              if (!teams[row.Team]) {
-                teams[row.Team] = {
-                  team: row.Team,
-                  finish: row.Placement,
-                  score: row["Team Score"],
-                  players: [],
-                }
-              }
-
-              teams[row.Team].players.push(row.Player)
-
-              return teams
-
-            }, {})
-
-            const teams = Object.values(teamsByLetter).sort(
-              (a, b) => Number(a.finish) - Number(b.finish)
-            )
-
-            return {
-              eventId,
-              eventName: event["Event Name"],
-              date: event.Date,
-              course: event.Course,
-              teams,
-            }
-
-          })
-          .sort((a, b) => new Date(b.date) - new Date(a.date))
-
-        setMatches(grouped)
+        setMatches(pastEvents)
 
       } catch (error) {
 
@@ -144,49 +108,38 @@ function PastMatches() {
 
         {matches.map((match) => {
 
-          const isExpanded = expandedId === match.eventId
+          const eventId = match["Event ID"]
+
+          // Clicking a match expands its photo into the full results
+          // view (teams, click-through recaps) right in place, instead
+          // of navigating away or popping up a separate screen.
+          if (expandedEventId === eventId) {
+            return (
+              <MatchResultsView
+                key={eventId}
+                eventId={eventId}
+                matchEntry={matchEntry}
+                schedule={schedule}
+                playerIds={playerIds}
+                eyebrow="Past Match"
+                onCollapse={() => setExpandedEventId(null)}
+              />
+            )
+          }
 
           return (
 
             <div
-              className={`match-card${isExpanded ? " match-card-expanded" : ""}`}
-              key={match.eventId}
-              onClick={() =>
-                setExpandedId(isExpanded ? null : match.eventId)
-              }
+              className="match-card"
+              key={eventId}
+              onClick={() => setExpandedEventId(eventId)}
             >
 
-              <CourseImage course={match.course} />
+              <CourseImage course={match.Course} />
 
               <div className="match-card-front">
-                <h3>{match.eventName}</h3>
-                <p>{match.date}</p>
-              </div>
-
-              <div className="match-card-hover">
-
-                <h3>{match.eventName}</h3>
-                <p>{match.date}</p>
-
-                {match.teams.length > 0 ? (
-
-                  <ul className="match-results-list">
-
-                    {match.teams.map((team) => (
-                      <li key={team.team}>
-                        <strong>{team.finish}.</strong> {team.players.join(" / ")}
-                        <span className="match-score"> — Score: {formatOverPar(team.score)}</span>
-                      </li>
-                    ))}
-
-                  </ul>
-
-                ) : (
-
-                  <p>Results coming soon.</p>
-
-                )}
-
+                <h3>{match["Event Name"]}</h3>
+                <p>{match.Date}</p>
               </div>
 
             </div>

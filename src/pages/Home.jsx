@@ -1,6 +1,6 @@
 import Dashboard from "../components/Dashboard"
 import NextEventFeature from "../components/NextEventFeature"
-import LastMatchResults from "../components/LastMatchResults"
+import LastMatchFeature from "../components/LastMatchFeature"
 import News from "../components/News"
 import HottestPlayer from "../components/HottestPlayer"
 
@@ -19,7 +19,7 @@ function Home() {
 
       <Dashboard />
 
-      <LastMatchResults />
+      <LastMatchFeature />
 
       <News />
 
