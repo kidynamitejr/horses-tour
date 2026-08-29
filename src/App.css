@@ -212,13 +212,14 @@ table {
 }
 
 th {
-  background: #003b5c;
+  background: linear-gradient(180deg, #00527f 0%, #003b5c 100%);
   color: white;
-  padding: 14px;
+  padding: 15px 14px;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.2px;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 12px;
+  border-bottom: 2px solid #d9b64a;
 }
 
 thead th:first-child {
@@ -231,7 +232,53 @@ thead th:last-child {
 
 td {
   padding: 14px;
-  border-bottom: 1px solid #e5e5e5;
+  border-bottom: 1px solid #eef0f2;
+}
+
+tbody tr:nth-child(even) {
+  background: #f8fafc;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Status pill - used on the schedule table. */
+.status-badge {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
+.status-badge.status-played {
+  background: #e3f3ea;
+  color: #1f6b45;
+}
+
+.status-badge.status-planned {
+  background: #e9f1fa;
+  color: #1f5c8b;
+}
+
+.schedule-event-name {
+  font-weight: 700;
+  color: #003b5c;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 16px;
+}
+
+.schedule-winner {
+  font-weight: 700;
+  color: #003b5c;
+}
+
+.schedule-winner.schedule-winner-pending {
+  font-weight: 500;
+  color: #999;
 }
 
 .last-match-table th {
@@ -298,8 +345,8 @@ tr:hover {
 }
 
 .leaderboard-avatar {
-  width: 41px;
-  height: 41px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
@@ -1181,15 +1228,138 @@ a.next-event-player:hover span {
 }
 
 .gallery-card{
+  position: relative;
   background:white;
   border-radius:16px;
   overflow:hidden;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0,0,0,.08);
+  transition: transform .25s, box-shadow .25s;
+}
+
+.gallery-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 30px rgba(0,0,0,.18);
 }
 
 .gallery-card img{
   width:100%;
   height:200px;
   object-fit:cover;
+  transition: transform .35s;
+}
+
+.gallery-card:hover img {
+  transform: scale(1.06);
+}
+
+.gallery-card-zoom-hint {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0,20,35,.55);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  opacity: 0;
+  transition: opacity .2s;
+  backdrop-filter: blur(4px);
+}
+
+.gallery-card:hover .gallery-card-zoom-hint {
+  opacity: 1;
+}
+
+/* GALLERY LIGHTBOX */
+
+.gallery-lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,10,18,.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 30px;
+  animation: next-event-modal-fade-in .2s ease;
+}
+
+.gallery-lightbox-figure {
+  margin: 0;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.gallery-lightbox-image {
+  max-width: 90vw;
+  max-height: 80vh;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.6);
+}
+
+.gallery-lightbox-caption {
+  margin-top: 16px;
+  color: white;
+  font-size: 15px;
+  text-align: center;
+  max-width: 600px;
+}
+
+.gallery-lightbox-close {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,.12);
+  color: white;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background .2s;
+}
+
+.gallery-lightbox-close:hover {
+  background: rgba(255,255,255,.25);
+}
+
+.gallery-lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,.12);
+  color: white;
+  font-size: 30px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background .2s;
+}
+
+.gallery-lightbox-nav:hover {
+  background: rgba(255,255,255,.25);
+}
+
+.gallery-lightbox-prev {
+  left: 20px;
+}
+
+.gallery-lightbox-next {
+  right: 20px;
 }
 
 /* PAST MATCHES */
