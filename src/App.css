@@ -705,6 +705,100 @@ tr:hover {
   box-shadow: 0 14px 30px rgba(0,0,0,.25);
 }
 
+.individual-placements-panel {
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto;
+  background: rgba(255,255,255,.22);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 16px;
+  padding: 6px;
+  box-shadow: 0 14px 34px rgba(0,0,0,.3);
+  /* The panel is mostly just a blur now, not a solid card, so the photo
+     underneath is still doing most of the work - keep text white with a
+     strong dark shadow (the same treatment as the title/date above it)
+     instead of dark text, which stopped being reliably legible once the
+     background got this see-through. */
+  color: white;
+  text-shadow: 0 2px 5px rgba(0,0,0,.9), 0 0 3px rgba(0,0,0,.7);
+}
+
+.individual-placements-panel td,
+.individual-placements-panel th {
+  font-weight: 700;
+}
+
+.individual-placements-panel .table-scroll {
+  width: auto;
+}
+
+.individual-placements-panel table {
+  width: auto;
+  min-width: 0;
+}
+
+.individual-placements-panel th,
+.individual-placements-panel td {
+  padding: 6px 10px;
+}
+
+/* Every row stays the same uniform glass - no alternating stripe, no
+   solid hover fill, so the course photo shows through consistently. */
+.individual-placements-panel tbody tr,
+.individual-placements-panel tbody tr:nth-child(even),
+.individual-placements-panel tbody tr:hover {
+  background: transparent;
+}
+
+.individual-placements-panel td {
+  border-bottom: 1px solid rgba(255,255,255,.35);
+}
+
+.individual-placements-avatar-wrap .last-match-movement-badge {
+  width: 18px !important;
+  height: 18px !important;
+  top: -3px !important;
+  right: -3px !important;
+  border-width: 1.5px !important;
+  font-size: 7px !important;
+}
+
+/* Team Results / Individual Placements switcher */
+
+.match-view-toggle {
+  display: inline-flex;
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 30px;
+  padding: 4px;
+  margin-bottom: 20px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.match-view-tab {
+  border: none;
+  background: transparent;
+  color: rgba(255,255,255,.75);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .3px;
+  padding: 8px 16px;
+  border-radius: 24px;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.match-view-tab:hover {
+  color: white;
+}
+
+.match-view-tab.active {
+  background: #d9b64a;
+  color: #003b5c;
+}
+
 .next-event-favored {
   border: 2px solid #d9b64a;
   box-shadow: 0 0 0 3px rgba(217,182,74,.25), 0 14px 30px rgba(0,0,0,.25);

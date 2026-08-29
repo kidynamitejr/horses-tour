@@ -181,6 +181,7 @@ function TeamRecapModal({ modalTeam, playerIds, onClose }) {
 function MatchResultsView({ eventId, matchEntry, schedule, playerIds, eyebrow, onCollapse }) {
 
   const [modalTeam, setModalTeam] = useState(null)
+  const [view, setView] = useState("teams")
 
   const playedRows = matchEntry.filter((row) => row.Player && row.Contributions)
 
@@ -248,6 +249,11 @@ function MatchResultsView({ eventId, matchEntry, schedule, playerIds, eyebrow, o
       teamsByLetter[row.Team].players.push({
         name,
         matchPoints: parseFloat(row["Match Ranking Points"]) || 0,
+        // The team's flat placement-based points (same for both
+        // teammates) - the "pool" that Contribution % splits between
+        // them to produce their individual Match Points.
+        teamPointsAvailable: parseFloat(row["Power Score Earned"]) || 0,
+        teamPlacement: Number(row.Placement),
         contributions: row.Contributions,
         contributionPercent: row["Contribution %"],
         individualPlacement: currentPlacement,
@@ -257,6 +263,13 @@ function MatchResultsView({ eventId, matchEntry, schedule, playerIds, eyebrow, o
     })
 
   const teams = Object.values(teamsByLetter).sort((a, b) => a.teamPlacement - b.teamPlacement)
+
+  // Every player from every team, ranked 1st to last by how they
+  // individually did that match (Match Ranking Points) - independent of
+  // who their teammate was or how the team as a whole finished.
+  const allPlayersRanked = teams
+    .flatMap((t) => t.players)
+    .sort((a, b) => a.individualPlacement - b.individualPlacement)
 
   const event = schedule.find((e) => e["Event ID"] === String(eventId))
   const eventName = event ? event["Event Name"] : `Event ${eventId}`
@@ -294,48 +307,160 @@ function MatchResultsView({ eventId, matchEntry, schedule, playerIds, eyebrow, o
 
         {teams.length > 0 && (
 
-          <div className="next-event-matchups last-match-matchups-stacked">
+          <>
 
-            {teams.map((t) => {
+            <div className="match-view-toggle">
 
-              const isChampion = t.teamPlacement === 1
+              <button
+                type="button"
+                className={`match-view-tab${view === "teams" ? " active" : ""}`}
+                onClick={() => setView("teams")}
+              >
+                Team Results
+              </button>
 
-              return (
+              <button
+                type="button"
+                className={`match-view-tab${view === "individual" ? " active" : ""}`}
+                onClick={() => setView("individual")}
+              >
+                Individual Placements
+              </button>
 
-                <div
-                  className={`next-event-matchup-card${isChampion ? " last-match-champion-card" : ""}`}
-                  key={t.team}
-                  onClick={() => setModalTeam(t)}
-                >
+            </div>
 
-                  <span className="next-event-team-tag">
-                    {isChampion ? "🏆 Champions" : ordinal(t.teamPlacement)}
-                  </span>
+            {view === "teams" ? (
 
-                  <div className="next-event-matchup-players">
+              <div className="next-event-matchups last-match-matchups-stacked">
 
-                    <PlayerChip player={t.players[0]} playerIds={playerIds} />
+                {teams.map((t) => {
 
-                    {t.players.length > 1 && (
-                      <>
-                        <span className="next-event-teammate-divider">&amp;</span>
-                        <PlayerChip player={t.players[1]} playerIds={playerIds} />
-                      </>
-                    )}
+                  const isChampion = t.teamPlacement === 1
 
-                  </div>
+                  return (
 
-                  <p className="last-match-team-score">
-                    Team Score: {formatOverPar(t.teamScore)}
-                  </p>
+                    <div
+                      className={`next-event-matchup-card${isChampion ? " last-match-champion-card" : ""}`}
+                      key={t.team}
+                      onClick={() => setModalTeam(t)}
+                    >
+
+                      <span className="next-event-team-tag">
+                        {isChampion ? "🏆 Champions" : ordinal(t.teamPlacement)}
+                      </span>
+
+                      <div className="next-event-matchup-players">
+
+                        <PlayerChip player={t.players[0]} playerIds={playerIds} />
+
+                        {t.players.length > 1 && (
+                          <>
+                            <span className="next-event-teammate-divider">&amp;</span>
+                            <PlayerChip player={t.players[1]} playerIds={playerIds} />
+                          </>
+                        )}
+
+                      </div>
+
+                      <p className="last-match-team-score">
+                        Team Score: {formatOverPar(t.teamScore)}
+                      </p>
+
+                    </div>
+
+                  )
+
+                })}
+
+              </div>
+
+            ) : (
+
+              <div className="individual-placements-panel">
+
+                <div className="table-scroll">
+
+                  <table className="leaderboard-table">
+
+                    <thead>
+
+                      <tr>
+                        <th>Place</th>
+                        <th>Player</th>
+                        <th>Team Placement</th>
+                        <th>Team Points</th>
+                        <th>Contribution</th>
+                        <th>Points Earned</th>
+                      </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                      {allPlayersRanked.map((player) => (
+
+                        <tr key={player.name}>
+
+                          <td>
+                            {player.individualPlacement}
+                          </td>
+
+                          <td>
+
+                            <div className="leaderboard-player">
+
+                              <div className="next-event-avatar-wrap individual-placements-avatar-wrap">
+
+                                <img
+                                  src={`${import.meta.env.BASE_URL}images/players/${playerIds[player.name]}.jpg`}
+                                  alt={player.name}
+                                  className="leaderboard-avatar"
+                                  onError={(e) => {
+                                    e.target.src = `${import.meta.env.BASE_URL}images/players/default.jpg`
+                                  }}
+                                />
+
+                                <MovementBadge movement={player.movement} />
+
+                              </div>
+
+                              {player.name}
+
+                            </div>
+
+                          </td>
+
+                          <td>
+                            {ordinal(player.teamPlacement)}
+                          </td>
+
+                          <td>
+                            {player.teamPointsAvailable.toFixed(1)}
+                          </td>
+
+                          <td>
+                            {player.contributionPercent}
+                          </td>
+
+                          <td>
+                            {player.matchPoints.toFixed(2)}
+                          </td>
+
+                        </tr>
+
+                      ))}
+
+                    </tbody>
+
+                  </table>
 
                 </div>
 
-              )
+              </div>
 
-            })}
+            )}
 
-          </div>
+          </>
 
         )}
 
