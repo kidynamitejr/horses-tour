@@ -44,40 +44,39 @@ function Article() {
   }
 
   return (
-    <section className="card">
-      <Link
-        className="button"
-        to="/news"
-      >
-        ← Back to News
-      </Link>
+    <>
+      <section className="next-event-feature article-hero">
 
-      <br />
-      <br />
+        <img
+          src={article.Image}
+          alt={article.Headline}
+          className="next-event-bg-img"
+        />
 
-      <img
-        src={article.Image}
-        alt={article.Headline}
-        style={{
-          width: "100%",
-          borderRadius: "10px",
-          marginBottom: "20px",
-        }}
-      />
+        <div className="next-event-overlay" />
 
-      <small>{article.Date}</small>
+        <Link to="/news" className="article-back-link">
+          ← Back to News
+        </Link>
 
-      <h1>{article.Headline}</h1>
+        <div className="next-event-content">
 
-      <p
-        style={{
-          whiteSpace: "pre-wrap",
-          lineHeight: "1.8",
-        }}
-      >
-        {article.Article}
-      </p>
-    </section>
+          <p className="next-event-eyebrow">{article.Date}</p>
+
+          <h1 className="next-event-title article-title">{article.Headline}</h1>
+
+        </div>
+
+      </section>
+
+      <section className="card article-body-card">
+
+        <p className="article-body-text">
+          {article.Article}
+        </p>
+
+      </section>
+    </>
   )
 }
 

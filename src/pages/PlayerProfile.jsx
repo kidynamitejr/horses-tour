@@ -150,21 +150,33 @@ function PlayerProfile() {
   return (
     <>
       <section className="player-profile-header">
-        <img
-          src={`${import.meta.env.BASE_URL}images/players/${player["Player ID"]}.jpg`}
-          alt={player.Name}
-          className="profile-image"
-          onError={(e) => {
-            e.target.src = `${import.meta.env.BASE_URL}images/players/default.jpg`
-          }}
-        />
+        <div className="player-profile-avatar-ring">
+          <img
+            src={`${import.meta.env.BASE_URL}images/players/${player["Player ID"]}.jpg`}
+            alt={player.Name}
+            className="profile-image"
+            onError={(e) => {
+              e.target.src = `${import.meta.env.BASE_URL}images/players/default.jpg`
+            }}
+          />
+        </div>
 
         <div>
+          <p className="player-profile-eyebrow">Player Profile</p>
+
           <h1>{player.Name}</h1>
 
-          <p>Joined: {player["Join Date"]}</p>
+          <p className="player-profile-meta">Joined {player["Join Date"]}</p>
 
-          <p>Status: {player.Active}</p>
+          <span
+            className={`status-badge ${
+              player.Active && player.Active.trim().toLowerCase() === "active"
+                ? "status-played"
+                : "status-planned"
+            }`}
+          >
+            {player.Active}
+          </span>
         </div>
       </section>
 
@@ -174,63 +186,63 @@ function PlayerProfile() {
         <div className="stats-grid">
           <div className="stat-card">
             <h3>Rank</h3>
-            <p>{summary?.rank ?? "-"}</p>
+            <p className="stat-value">{summary?.rank ?? "-"}</p>
           </div>
 
           <div className="stat-card">
             <h3>Power Points</h3>
-            <p>{summary?.totalPowerScore ?? "0"}</p>
+            <p className="stat-value">{summary?.totalPowerScore ?? "0"}</p>
           </div>
 
           <div className="stat-card">
             <h3>Ranking Factor</h3>
-            <p>{summary?.avgRankingPoints ?? "-"}</p>
+            <p className="stat-value">{summary?.avgRankingPoints ?? "-"}</p>
           </div>
 
           <div className="stat-card">
             <h3>Events Played</h3>
-            <p>{summary?.eventsPlayed ?? 0}</p>
+            <p className="stat-value">{summary?.eventsPlayed ?? 0}</p>
           </div>
 
           <div className="stat-card">
             <h3>Wins</h3>
-            <p>{summary?.wins ?? 0}</p>
+            <p className="stat-value">{summary?.wins ?? 0}</p>
           </div>
 
           <div className="stat-card">
             <h3>Runner Ups</h3>
-            <p>{summary?.runnerUps ?? 0}</p>
+            <p className="stat-value">{summary?.runnerUps ?? 0}</p>
           </div>
 
           <div className="stat-card">
             <h3>Top 3 Finishes</h3>
-            <p>{summary?.topThree ?? 0}</p>
+            <p className="stat-value">{summary?.topThree ?? 0}</p>
           </div>
 
           <div className="stat-card">
             <h3>Highest Round</h3>
-            <p>{roundStats.highest !== null ? roundStats.highest.toFixed(2) : "-"}</p>
+            <p className="stat-value">{roundStats.highest !== null ? roundStats.highest.toFixed(2) : "-"}</p>
           </div>
 
           <div className="stat-card">
             <h3>Lowest Round</h3>
-            <p>{roundStats.lowest !== null ? roundStats.lowest.toFixed(2) : "-"}</p>
+            <p className="stat-value">{roundStats.lowest !== null ? roundStats.lowest.toFixed(2) : "-"}</p>
           </div>
 
           <div className="stat-card">
             <h3>Best Tournament</h3>
-            <p>{roundStats.best || "-"}</p>
+            <p className="stat-value stat-value-text">{roundStats.best || "-"}</p>
           </div>
 
           <div className="stat-card">
             <h3>Worst Tournament</h3>
-            <p>{roundStats.worst || "-"}</p>
+            <p className="stat-value stat-value-text">{roundStats.worst || "-"}</p>
           </div>
         </div>
       </section>
 
       {pointsHistory.length > 0 && (
-        <section className="card">
+        <section className="card player-chart-card">
           <h2>Points Scored Over Time</h2>
 
           <ResponsiveContainer width="100%" height={320}>
@@ -238,7 +250,14 @@ function PlayerProfile() {
               data={pointsHistory}
               margin={{ top: 10, right: 20, left: 0, bottom: 60 }}
             >
-              <CartesianGrid strokeDasharray="3 3" />
+              <defs>
+                <linearGradient id="playerChartFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#003b5c" stopOpacity={0.18} />
+                  <stop offset="100%" stopColor="#003b5c" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e9ed" />
 
               <XAxis
                 dataKey="tournament"
@@ -246,20 +265,28 @@ function PlayerProfile() {
                 textAnchor="end"
                 interval={0}
                 height={70}
-                tick={{ fontSize: 12 }}
+                tick={{ fontSize: 12, fill: "#666" }}
               />
 
-              <YAxis />
+              <YAxis tick={{ fill: "#666" }} />
 
-              <Tooltip />
+              <Tooltip
+                contentStyle={{
+                  borderRadius: 10,
+                  border: "1px solid #eee",
+                  boxShadow: "0 8px 24px rgba(0,0,0,.12)",
+                }}
+              />
 
               <Line
                 type="monotone"
                 dataKey="points"
                 name="Points Scored"
                 stroke="#003b5c"
-                strokeWidth={2}
-                dot={{ r: 4 }}
+                strokeWidth={3}
+                dot={{ r: 5, fill: "#d9b64a", stroke: "#003b5c", strokeWidth: 2 }}
+                activeDot={{ r: 7 }}
+                fill="url(#playerChartFill)"
               />
             </LineChart>
           </ResponsiveContainer>

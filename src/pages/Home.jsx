@@ -10,6 +10,8 @@ function Home() {
       <section className="hero">
         <h1>Welcome to the Horses Tour</h1>
 
+        <div className="hero-divider" />
+
         <p>
           Competitive scramble golf. Track rankings, stats, and history.
         </p>

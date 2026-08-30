@@ -36,12 +36,24 @@ function Rules() {
 
   }, [])
 
-  const categories = []
+  // Groups rules into consecutive runs by Category instead of merging
+  // every rule sharing a category name into one bucket - if the same
+  // category name shows up again further down the sheet (a separate
+  // block of rows), it gets its own section in its own place rather
+  // than being pulled up into the earlier section, which is what was
+  // causing the Rule # to jump out of order.
+  const sections = []
 
   rules.forEach((rule) => {
-    if (!categories.includes(rule.Category)) {
-      categories.push(rule.Category)
+
+    const last = sections[sections.length - 1]
+
+    if (last && last.category === rule.Category) {
+      last.rules.push(rule)
+    } else {
+      sections.push({ category: rule.Category, rules: [rule] })
     }
+
   })
 
   return (
@@ -61,29 +73,27 @@ function Rules() {
         <p>Loading rules...</p>
       )}
 
-      {!loading && categories.map((category) => (
+      {!loading && sections.map((section, index) => (
 
-        <div key={category} className="rules-category">
+        <div key={`${section.category}-${index}`} className="rules-category">
 
           <h4>
-            {category}
+            {section.category}
           </h4>
 
           <ul className="rules-list">
 
-            {rules
-              .filter((rule) => rule.Category === category)
-              .map((rule) => (
-                <li key={rule["Rule #"]} className="rules-list-item">
-                  <span className="rule-number">
-                    {rule["Rule #"]}.
-                  </span>
+            {section.rules.map((rule) => (
+              <li key={rule["Rule #"]} className="rules-list-item">
+                <span className="rule-number">
+                  {rule["Rule #"]}.
+                </span>
 
-                  <span>
-                    {rule.Rule}
-                  </span>
-                </li>
-              ))}
+                <span>
+                  {rule.Rule}
+                </span>
+              </li>
+            ))}
 
           </ul>
 

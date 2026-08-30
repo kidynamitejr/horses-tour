@@ -41,32 +41,36 @@ function News() {
 
       <div className="news-grid">
         {articles.map((article) => (
-          <div
+          <Link
             className="news-card"
             key={article["Article ID"]}
+            to={`/news/${article["Article ID"]}`}
           >
-            <img
-              src={article.Image}
-              alt={article.Headline}
-            />
+            <div className="news-card-image-wrap">
 
-            <small>{article.Date}</small>
+              <img
+                src={article.Image}
+                alt={article.Headline}
+              />
 
-            <h3>{article.Headline}</h3>
+              <span className="news-card-date">{article.Date}</span>
 
-            <p>
-              {article.Article.length > 220
-                ? article.Article.substring(0, 220) + "..."
-                : article.Article}
-            </p>
+            </div>
 
-            <Link
-              className="button"
-              to={`/news/${article["Article ID"]}`}
-            >
-              Read More →
-            </Link>
-          </div>
+            <div className="news-card-body">
+
+              <h3>{article.Headline}</h3>
+
+              <p>
+                {article.Article.length > 220
+                  ? article.Article.substring(0, 220) + "..."
+                  : article.Article}
+              </p>
+
+              <span className="news-card-read-more">Read More →</span>
+
+            </div>
+          </Link>
         ))}
       </div>
     </section>

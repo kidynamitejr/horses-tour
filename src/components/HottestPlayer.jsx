@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
-import { getPlayers, getSchedule, getContributions } from "../data/googleSheets"
-import { getPlayedContributions } from "../utils/matchmakingPoints"
+import { getPlayers, getSchedule, getMatchEntry } from "../data/googleSheets"
 
 function HottestPlayer() {
 
@@ -14,16 +13,16 @@ function HottestPlayer() {
 
       try {
 
-        const [players, schedule, contributions] = await Promise.all([
+        const [players, schedule, matchEntry] = await Promise.all([
           getPlayers(),
           getSchedule(),
-          getContributions(),
+          getMatchEntry(),
         ])
 
-        // Only consider events that have actually been played - a
-        // future event dragged down in the sheet still has rows, just
-        // with blank Contributions, so it's excluded here.
-        const played = getPlayedContributions(contributions)
+        // A played row is one with Contributions filled in - future/
+        // unplayed event rows in Match Entry are dragged-down formula
+        // rows with blanks there.
+        const played = matchEntry.filter((row) => row.Player && row.Contributions)
 
         if (played.length === 0) {
           setHottest(null)
@@ -39,7 +38,8 @@ function HottestPlayer() {
         )
 
         const topRow = latestEventRows.reduce((best, row) =>
-          parseFloat(row["Match Points"]) > parseFloat(best["Match Points"])
+          (parseFloat(row["Match Ranking Points"]) || 0) >
+          (parseFloat(best["Match Ranking Points"]) || 0)
             ? row
             : best
         )
@@ -57,7 +57,7 @@ function HottestPlayer() {
         setHottest({
           player,
           eventName: event ? event["Event Name"] : `Event ${latestEventId}`,
-          pointsEarned: parseFloat(topRow["Match Points"]).toFixed(2),
+          pointsEarned: (parseFloat(topRow["Match Ranking Points"]) || 0).toFixed(2),
         })
 
       } catch (error) {
@@ -84,20 +84,27 @@ function HottestPlayer() {
 
   return (
 
-    <section className="featured-player card">
+    <Link
+      to={`/player-profile/${player["Player ID"]}`}
+      className="featured-player card"
+    >
 
       <h2>Hottest Player</h2>
 
       <div className="featured-player-content">
 
-        <img
-          src={`${import.meta.env.BASE_URL}images/players/${player["Player ID"]}.jpg`}
-          alt={player.Name}
-          className="featured-player-image"
-          onError={(e) => {
-            e.target.src = `${import.meta.env.BASE_URL}images/players/default.jpg`
-          }}
-        />
+        <div className="featured-player-avatar-ring">
+
+          <img
+            src={`${import.meta.env.BASE_URL}images/players/${player["Player ID"]}.jpg`}
+            alt={player.Name}
+            className="featured-player-image"
+            onError={(e) => {
+              e.target.src = `${import.meta.env.BASE_URL}images/players/default.jpg`
+            }}
+          />
+
+        </div>
 
         <div>
 
@@ -107,22 +114,19 @@ function HottestPlayer() {
             Top Scorer at {eventName}
           </p>
 
-          <p>
-            Earned {pointsEarned} points in the last event to lead the field.
-          </p>
+          <span className="featured-player-points-pill">
+            {pointsEarned} pts earned
+          </span>
 
-          <Link
-            to={`/player-profile/${player["Player ID"]}`}
-            className="button"
-          >
-            View Profile
-          </Link>
+          <span className="featured-player-cta">
+            View Full Profile →
+          </span>
 
         </div>
 
       </div>
 
-    </section>
+    </Link>
 
   )
 
