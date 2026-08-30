@@ -28,7 +28,7 @@ h1, h2, h3, .logo-text {
 /* HEADER */
 
 .header {
-  height: 80px;
+  height: 100px;
   background: #003b5c;
   display: flex;
   align-items: center;
@@ -41,7 +41,7 @@ h1, h2, h3, .logo-text {
 }
 
 .header-scrolled {
-  height: 46px;
+  height: 54px;
 }
 
 .logo-container {
@@ -51,15 +51,15 @@ h1, h2, h3, .logo-text {
 }
 
 .logo-image {
-  height: 66px;
-  width: 66px;
+  height: 78px;
+  width: 78px;
   object-fit: contain;
   transition: height .3s ease, width .3s ease;
 }
 
 .header-scrolled .logo-image {
-  height: 32px;
-  width: 32px;
+  height: 36px;
+  width: 36px;
 }
 
 .logo-text {
