@@ -41,25 +41,25 @@ h1, h2, h3, .logo-text {
 }
 
 .header-scrolled {
-  height: 40px;
+  height: 46px;
 }
 
 .logo-container {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 16px;
 }
 
 .logo-image {
-  height: 55px;
-  width: 55px;
+  height: 66px;
+  width: 66px;
   object-fit: contain;
   transition: height .3s ease, width .3s ease;
 }
 
 .header-scrolled .logo-image {
-  height: 28px;
-  width: 28px;
+  height: 32px;
+  width: 32px;
 }
 
 .logo-text {
