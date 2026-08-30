@@ -13,6 +13,19 @@ function formatOverPar(value) {
   return num >= 0 ? `+${value}` : value
 }
 
+// Contribution % is only formatted as a percent (e.g. "50.00%") for the
+// first event in the sheet - every event after that has the same column
+// left as a raw decimal fraction (e.g. "0.6481481481"). Normalize both
+// into a proper percentage string instead of showing raw sheet numbers.
+function formatContributionPercent(value) {
+  if (value === "" || value === null || value === undefined) return ""
+  const str = String(value).trim()
+  if (str.endsWith("%")) return str
+  const num = parseFloat(str)
+  if (isNaN(num)) return str
+  return `${(num * 100).toFixed(2)}%`
+}
+
 function CourseBackground({ course }) {
 
   const [extIndex, setExtIndex] = useState(0)
@@ -79,7 +92,7 @@ function PlayerChip({ player, playerIds, large, linked }) {
           <div className="last-match-stat-row">
             <span className="last-match-stat-label">Contributions</span>
             <span className="last-match-stat-value">
-              {player.contributions} <em>({player.contributionPercent})</em>
+              {player.contributions} <em>({formatContributionPercent(player.contributionPercent)})</em>
             </span>
           </div>
 
@@ -417,7 +430,7 @@ function MatchResultsView({ eventId, matchEntry, schedule, playerIds, eyebrow, o
                           </td>
 
                           <td>
-                            {player.contributionPercent}
+                            {formatContributionPercent(player.contributionPercent)}
                           </td>
 
                           <td>
