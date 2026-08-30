@@ -810,15 +810,6 @@ tr:hover {
   border-bottom: 1px solid rgba(255,255,255,.35);
 }
 
-.individual-placements-avatar-wrap .last-match-movement-badge {
-  width: 18px !important;
-  height: 18px !important;
-  top: -3px !important;
-  right: -3px !important;
-  border-width: 1.5px !important;
-  font-size: 7px !important;
-}
-
 /* Team Results / Individual Placements switcher */
 
 .match-view-toggle {
@@ -1170,38 +1161,6 @@ a.next-event-player:hover span {
 .next-event-avatar-wrap {
   position: relative;
   display: inline-block;
-}
-
-.last-match-movement-badge {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  border: 2px solid white;
-  background: #555;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 9.5px !important;
-  line-height: 1;
-  font-weight: 800;
-  box-shadow: 0 2px 6px rgba(0,0,0,.4);
-}
-
-.last-match-movement-badge.movement-up {
-  background: #2d6a4f;
-}
-
-.last-match-movement-badge.movement-down {
-  background: #b3261e;
-}
-
-.last-match-movement-badge.movement-neutral {
-  background: #555;
-  color: #ddd;
 }
 
 .last-match-placement-badge {

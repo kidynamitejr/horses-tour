@@ -34,20 +34,6 @@ function CourseBackground({ course }) {
 
 }
 
-function MovementBadge({ movement }) {
-
-  if (movement === null || movement === undefined || movement === 0) {
-    return <span className="last-match-movement-badge movement-neutral">—</span>
-  }
-
-  if (movement > 0) {
-    return <span className="last-match-movement-badge movement-up">▲{movement}</span>
-  }
-
-  return <span className="last-match-movement-badge movement-down">▼{Math.abs(movement)}</span>
-
-}
-
 // On the collapsed team card, the headshot is plain (clicking anywhere
 // on the card opens the match recap modal instead). Inside that modal,
 // the headshot + name become a link straight to the player's profile
@@ -72,8 +58,6 @@ function PlayerChip({ player, playerIds, large, linked }) {
         {linked && (
           <span className="last-match-placement-badge">{player.individualPlacement}</span>
         )}
-
-        {linked && <MovementBadge movement={player.movement} />}
 
       </div>
 
@@ -409,20 +393,14 @@ function MatchResultsView({ eventId, matchEntry, schedule, playerIds, eyebrow, o
 
                             <div className="leaderboard-player">
 
-                              <div className="next-event-avatar-wrap individual-placements-avatar-wrap">
-
-                                <img
-                                  src={`${import.meta.env.BASE_URL}images/players/${playerIds[player.name]}.jpg`}
-                                  alt={player.name}
-                                  className="leaderboard-avatar"
-                                  onError={(e) => {
-                                    e.target.src = `${import.meta.env.BASE_URL}images/players/default.jpg`
-                                  }}
-                                />
-
-                                <MovementBadge movement={player.movement} />
-
-                              </div>
+                              <img
+                                src={`${import.meta.env.BASE_URL}images/players/${playerIds[player.name]}.jpg`}
+                                alt={player.name}
+                                className="leaderboard-avatar"
+                                onError={(e) => {
+                                  e.target.src = `${import.meta.env.BASE_URL}images/players/default.jpg`
+                                }}
+                              />
 
                               {player.name}
 
