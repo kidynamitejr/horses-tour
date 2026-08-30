@@ -109,6 +109,8 @@ h1, h2, h3, .logo-text {
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 0 0 32px 32px;
+  overflow: hidden;
 }
 
 .hero-content {
