@@ -252,8 +252,8 @@ function PlayerProfile() {
             >
               <defs>
                 <linearGradient id="playerChartFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#003b5c" stopOpacity={0.18} />
-                  <stop offset="100%" stopColor="#003b5c" stopOpacity={0} />
+                  <stop offset="0%" stopColor="#8a94a3" stopOpacity={0.18} />
+                  <stop offset="100%" stopColor="#8a94a3" stopOpacity={0} />
                 </linearGradient>
               </defs>
 
@@ -282,10 +282,10 @@ function PlayerProfile() {
                 type="monotone"
                 dataKey="points"
                 name="Points Scored"
-                stroke="#003b5c"
-                strokeWidth={3}
-                dot={{ r: 5, fill: "#d9b64a", stroke: "#003b5c", strokeWidth: 2 }}
-                activeDot={{ r: 7 }}
+                stroke="#8a94a3"
+                strokeWidth={2}
+                dot={{ r: 4, fill: "#8a94a3", stroke: "#8a94a3", strokeWidth: 1 }}
+                activeDot={{ r: 6 }}
                 fill="url(#playerChartFill)"
               />
             </LineChart>
