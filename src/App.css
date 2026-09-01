@@ -386,7 +386,7 @@ tr:hover {
 
 .leaderboard-charts {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 25px;
 }
 
@@ -552,6 +552,14 @@ tr:hover {
   color: #333;
   margin-top: 6px;
   min-height: 18px;
+}
+
+.stat-card-winnings::before {
+  background: linear-gradient(90deg, #2d6a4f, #d9b64a);
+}
+
+.stat-card .stat-value-money {
+  color: #2d6a4f;
 }
 
 .player-chart-card {

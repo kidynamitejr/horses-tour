@@ -14,8 +14,10 @@ import {
   getPlayers,
   getSchedule,
   getMatchEntry,
+  getEvents,
 } from "../data/googleSheets"
 import { getPlayerSummaries } from "../utils/matchEntry"
+import { getPlayerWinnings, formatCurrency } from "../utils/winnings"
 
 function PlayerProfile() {
   const { name } = useParams()
@@ -30,6 +32,7 @@ function PlayerProfile() {
     worst: null,
   })
   const [loading, setLoading] = useState(true)
+  const [totalWinnings, setTotalWinnings] = useState(0)
 
   useEffect(() => {
     async function loadPlayer() {
@@ -37,6 +40,7 @@ function PlayerProfile() {
         const players = await getPlayers()
         const schedule = await getSchedule()
         const matchEntry = await getMatchEntry()
+        const events = await getEvents()
 
         const foundPlayer = players.find(
           (p) =>
@@ -47,6 +51,10 @@ function PlayerProfile() {
         setPlayer(foundPlayer || null)
 
         if (foundPlayer) {
+
+          const winningsByPlayer = getPlayerWinnings(events)
+
+          setTotalWinnings(winningsByPlayer[foundPlayer.Name.trim()] || 0)
 
           const summaries = getPlayerSummaries(matchEntry)
           const foundSummary = summaries[foundPlayer.Name] || null
@@ -184,6 +192,11 @@ function PlayerProfile() {
         <h2>Career Statistics</h2>
 
         <div className="stats-grid">
+          <div className="stat-card stat-card-winnings">
+            <h3>Total Winnings</h3>
+            <p className="stat-value stat-value-money">{formatCurrency(totalWinnings)}</p>
+          </div>
+
           <div className="stat-card">
             <h3>Rank</h3>
             <p className="stat-value">{summary?.rank ?? "-"}</p>
