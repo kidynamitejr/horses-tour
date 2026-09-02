@@ -207,7 +207,7 @@ function TourLeaderCharts() {
 
         <div className="leaderboard-chart-card">
 
-          <h3>Winnings</h3>
+          <h3>Career Winnings</h3>
 
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={winningsData} margin={{ top: 50, right: 10, left: 0, bottom: 50 }}>
