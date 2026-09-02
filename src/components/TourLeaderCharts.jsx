@@ -7,8 +7,9 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  LabelList,
 } from "recharts"
-import { getMatchEntry, getEvents } from "../data/googleSheets"
+import { getMatchEntry, getEvents, getPlayers } from "../data/googleSheets"
 import { getPlayerSummaries } from "../utils/matchEntry"
 import { getPlayerWinnings, formatCurrency } from "../utils/winnings"
 
@@ -20,12 +21,70 @@ function toChartData(summaries, field) {
     .sort((a, b) => b.value - a.value)
 }
 
-function toWinningsChartData(winningsByPlayer) {
+// Maps a player name (case-insensitive) to the headshot image the rest of
+// the site uses for them.
+function buildAvatarUrl(name, playerIdByName) {
+  const id = playerIdByName[name.trim().toLowerCase()]
+  return id
+    ? `${import.meta.env.BASE_URL}images/players/${id}.jpg`
+    : `${import.meta.env.BASE_URL}images/players/default.jpg`
+}
+
+function toWinningsChartData(winningsByPlayer, playerIdByName) {
   return Object.entries(winningsByPlayer)
     .filter(([name]) => !/\(sub\)/i.test(name))
-    .map(([name, value]) => ({ name, value }))
+    .map(([name, value]) => ({
+      name,
+      value,
+      avatarUrl: buildAvatarUrl(name, playerIdByName),
+    }))
     .filter((entry) => entry.value > 0)
     .sort((a, b) => b.value - a.value)
+}
+
+// Renders a player's headshot as a small ringed circle floating above
+// their bar. Recharts clones this with x/y/width (the bar's geometry) and
+// index added on top of the `data` prop we pass in ourselves.
+function WinningsAvatarLabel({ x, y, width, index, data }) {
+
+  const entry = data && data[index]
+
+  const [imgError, setImgError] = useState(false)
+
+  if (!entry) return null
+
+  const size = 34
+  const cx = x + width / 2
+  const cy = y - size / 2 - 10
+  const clipId = `winnings-avatar-clip-${index}`
+
+  const src = imgError
+    ? `${import.meta.env.BASE_URL}images/players/default.jpg`
+    : entry.avatarUrl
+
+  return (
+    <g>
+      <defs>
+        <clipPath id={clipId}>
+          <circle cx={cx} cy={cy} r={size / 2} />
+        </clipPath>
+      </defs>
+
+      <circle cx={cx} cy={cy} r={size / 2 + 2} fill="#fff" stroke="#d9b64a" strokeWidth={2} />
+
+      <image
+        href={src}
+        x={cx - size / 2}
+        y={cy - size / 2}
+        width={size}
+        height={size}
+        clipPath={`url(#${clipId})`}
+        preserveAspectRatio="xMidYMid slice"
+        onError={() => setImgError(true)}
+      />
+    </g>
+  )
+
 }
 
 function TourLeaderCharts() {
@@ -51,9 +110,18 @@ function TourLeaderCharts() {
     })
 
     // Winnings live on the Events tab (Winner + per-person payout),
-    // not Match Entry.
-    getEvents().then((events) => {
-      setWinningsData(toWinningsChartData(getPlayerWinnings(events)))
+    // not Match Entry. Players is only needed to look up each winner's
+    // headshot for the chart labels.
+    Promise.all([getEvents(), getPlayers()]).then(([events, players]) => {
+
+      const playerIdByName = {}
+
+      players.forEach((p) => {
+        playerIdByName[p.Name.trim().toLowerCase()] = p["Player ID"]
+      })
+
+      setWinningsData(toWinningsChartData(getPlayerWinnings(events), playerIdByName))
+
     })
 
   }, [])
@@ -141,8 +209,8 @@ function TourLeaderCharts() {
 
           <h3>Winnings</h3>
 
-          <ResponsiveContainer width="100%" height={260}>
-            <BarChart data={winningsData} margin={{ top: 10, right: 10, left: 0, bottom: 50 }}>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={winningsData} margin={{ top: 50, right: 10, left: 0, bottom: 50 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} />
               <XAxis
                 dataKey="name"
@@ -154,7 +222,9 @@ function TourLeaderCharts() {
               />
               <YAxis allowDecimals={false} tickFormatter={(value) => formatCurrency(value)} />
               <Tooltip formatter={(value) => formatCurrency(value)} />
-              <Bar dataKey="value" name="Winnings" fill="#1f7a3f" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="value" name="Winnings" fill="#1f7a3f" radius={[6, 6, 0, 0]}>
+                <LabelList content={<WinningsAvatarLabel data={winningsData} />} />
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
 

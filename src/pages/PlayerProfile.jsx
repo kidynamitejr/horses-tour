@@ -193,7 +193,7 @@ function PlayerProfile() {
 
         <div className="stats-grid">
           <div className="stat-card stat-card-winnings">
-            <h3>Total Winnings</h3>
+            <h3>Career Winnings</h3>
             <p className="stat-value stat-value-money">{formatCurrency(totalWinnings)}</p>
           </div>
 
