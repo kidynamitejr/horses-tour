@@ -440,12 +440,12 @@ tr:hover {
 }
 
 .player-card-stats {
-  margin-top: 16px;
-  padding-top: 14px;
+  margin-top: 12px;
+  padding-top: 10px;
   border-top: 1px solid #eee;
   display: flex;
   flex-direction: column;
-  gap: 9px;
+  gap: 4px;
 }
 
 .player-card-stat-row {
