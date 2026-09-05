@@ -439,6 +439,42 @@ tr:hover {
   margin-bottom: 15px;
 }
 
+.player-card-stats {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid #eee;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.player-card-stat-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.player-card-stat-label {
+  color: #6b7280;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+}
+
+.player-card-stat-value {
+  color: #003b5c;
+  font-size: 17px;
+  font-weight: 800;
+  font-family: "Playfair Display", Georgia, serif;
+}
+
+.player-card-stat-majors .player-card-stat-label,
+.player-card-stat-majors .player-card-stat-value {
+  color: #c9a227;
+}
+
 /* PROFILE */
 
 .player-profile-header {
@@ -560,6 +596,14 @@ tr:hover {
 
 .stat-card .stat-value-money {
   color: #2d6a4f;
+}
+
+.stat-card-majors::before {
+  background: linear-gradient(90deg, #c9a227, #003b5c);
+}
+
+.stat-card .stat-value-major {
+  color: #c9a227;
 }
 
 .player-chart-card {

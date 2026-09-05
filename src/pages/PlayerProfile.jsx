@@ -18,6 +18,7 @@ import {
 } from "../data/googleSheets"
 import { getPlayerSummaries } from "../utils/matchEntry"
 import { getPlayerWinnings, formatCurrency } from "../utils/winnings"
+import { getMajorWins } from "../utils/majors"
 
 function PlayerProfile() {
   const { name } = useParams()
@@ -33,6 +34,7 @@ function PlayerProfile() {
   })
   const [loading, setLoading] = useState(true)
   const [totalWinnings, setTotalWinnings] = useState(0)
+  const [majorWins, setMajorWins] = useState(0)
 
   useEffect(() => {
     async function loadPlayer() {
@@ -55,6 +57,10 @@ function PlayerProfile() {
           const winningsByPlayer = getPlayerWinnings(events)
 
           setTotalWinnings(winningsByPlayer[foundPlayer.Name.trim()] || 0)
+
+          const majorWinsByPlayer = getMajorWins(events)
+
+          setMajorWins(majorWinsByPlayer[foundPlayer.Name.trim()] || 0)
 
           const summaries = getPlayerSummaries(matchEntry)
           const foundSummary = summaries[foundPlayer.Name] || null
@@ -215,6 +221,11 @@ function PlayerProfile() {
           <div className="stat-card">
             <h3>Events Played</h3>
             <p className="stat-value">{summary?.eventsPlayed ?? 0}</p>
+          </div>
+
+          <div className="stat-card stat-card-majors">
+            <h3>Majors Won</h3>
+            <p className="stat-value stat-value-major">{majorWins}</p>
           </div>
 
           <div className="stat-card">

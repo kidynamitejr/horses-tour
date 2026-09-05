@@ -1,5 +1,4 @@
 import Leaderboard from "../components/Leaderboard"
-import TourLeaderCharts from "../components/TourLeaderCharts"
 
 
 function LeaderboardPage() {
@@ -9,8 +8,6 @@ function LeaderboardPage() {
     <>
 
       <Leaderboard />
-
-      <TourLeaderCharts />
 
     </>
 

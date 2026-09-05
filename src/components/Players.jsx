@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
-import { getPlayers, getMatchEntry } from "../data/googleSheets"
+import { getPlayers, getMatchEntry, getEvents } from "../data/googleSheets"
 import { getPlayerSummaries } from "../utils/matchEntry"
+import { getMajorWins } from "../utils/majors"
 
 function Players() {
 
   const [players, setPlayers] = useState([])
   const [summaries, setSummaries] = useState({})
+  const [majorWins, setMajorWins] = useState({})
 
   useEffect(() => {
 
@@ -19,6 +21,12 @@ function Players() {
     getMatchEntry().then((data) => {
 
       setSummaries(getPlayerSummaries(data))
+
+    })
+
+    getEvents().then((events) => {
+
+      setMajorWins(getMajorWins(events))
 
     })
 
@@ -37,6 +45,7 @@ function Players() {
         {players.map((player) => {
 
           const summary = summaries[player.Name.trim()]
+          const majors = majorWins[player.Name.trim()] || 0
 
           return (
 
@@ -61,13 +70,24 @@ function Players() {
                   {player.Name}
                 </h3>
 
-                <p>
-                  Wins: {summary ? summary.wins : "0"}
-                </p>
+                <div className="player-card-stats">
 
-                <p>
-                  Runner Ups: {summary ? summary.runnerUps : "0"}
-                </p>
+                  <div className="player-card-stat-row player-card-stat-majors">
+                    <span className="player-card-stat-label">Major Wins</span>
+                    <span className="player-card-stat-value">{majors}</span>
+                  </div>
+
+                  <div className="player-card-stat-row">
+                    <span className="player-card-stat-label">Wins</span>
+                    <span className="player-card-stat-value">{summary ? summary.wins : 0}</span>
+                  </div>
+
+                  <div className="player-card-stat-row">
+                    <span className="player-card-stat-label">Runner Ups</span>
+                    <span className="player-card-stat-value">{summary ? summary.runnerUps : 0}</span>
+                  </div>
+
+                </div>
 
               </div>
 

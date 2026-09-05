@@ -1,4 +1,5 @@
 import Stats from "../components/Stats"
+import TourLeaderCharts from "../components/TourLeaderCharts"
 
 
 function StatsPage() {
@@ -8,6 +9,8 @@ function StatsPage() {
     <>
 
       <Stats />
+
+      <TourLeaderCharts />
 
     </>
 
