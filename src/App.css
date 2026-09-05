@@ -280,6 +280,22 @@ tbody tr:last-child td {
   color: #1f5c8b;
 }
 
+.status-badge.status-regular {
+  background: #eef1f4;
+  color: #55606b;
+}
+
+.status-badge.status-major {
+  background: linear-gradient(135deg, #f4d374, #c9a227);
+  color: #003b5c;
+  box-shadow: 0 3px 10px rgba(201,162,39,.45);
+  letter-spacing: .8px;
+}
+
+.status-major-star {
+  margin-right: 3px;
+}
+
 .schedule-event-name {
   font-weight: 700;
   color: #003b5c;
@@ -440,19 +456,20 @@ tr:hover {
 }
 
 .player-card-stats {
-  margin-top: 12px;
-  padding-top: 10px;
+  margin-top: 8px;
+  padding-top: 6px;
   border-top: 1px solid #eee;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0;
 }
 
 .player-card-stat-row {
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
-  gap: 10px;
+  justify-content: center;
+  gap: 6px;
+  line-height: 1.4;
 }
 
 .player-card-stat-label {
@@ -461,6 +478,7 @@ tr:hover {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .6px;
+  line-height: 1;
 }
 
 .player-card-stat-value {
@@ -468,6 +486,7 @@ tr:hover {
   font-size: 17px;
   font-weight: 800;
   font-family: "Playfair Display", Georgia, serif;
+  line-height: 1;
 }
 
 .player-card-stat-majors .player-card-stat-label,
@@ -481,6 +500,8 @@ tr:hover {
   display: flex;
   gap: 30px;
   align-items: center;
+  justify-content: center;
+  text-align: center;
   background: linear-gradient(160deg, #ffffff 0%, #fdf6e3 100%);
   border-radius: 16px;
   padding: 40px;
@@ -678,6 +699,14 @@ tr:hover {
   margin: 3px 0;
   color: #666;
   font-size: 15px;
+}
+
+.dashboard-card-subtext {
+  font-size: 12px !important;
+  color: #999 !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .4px;
 }
 
 .dashboard-card.event h3 {
@@ -917,6 +946,32 @@ tr:hover {
   padding: 4px 10px;
   border-radius: 20px;
   border: 1px solid rgba(217,182,74,.6);
+  box-shadow: 0 4px 10px rgba(0,0,0,.25);
+  white-space: nowrap;
+}
+
+.next-event-underdog {
+  background: rgba(0,0,0,.22);
+  filter: grayscale(.35);
+}
+
+.next-event-underdog:hover {
+  background: rgba(0,0,0,.3);
+}
+
+.next-event-underdog-badge {
+  position: absolute;
+  top: -11px;
+  right: 16px;
+  background: rgba(255,255,255,.9);
+  color: #55606b;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid rgba(85,96,107,.3);
   box-shadow: 0 4px 10px rgba(0,0,0,.25);
   white-space: nowrap;
 }
@@ -1164,7 +1219,8 @@ a.next-event-player:hover span {
   padding: 6px 18px;
 }
 
-.next-event-modal-favored-badge {
+.next-event-modal-favored-badge,
+.next-event-modal-underdog-badge {
   position: static;
   display: inline-block;
   margin: 0 0 0 8px;
@@ -1398,6 +1454,8 @@ a.next-event-player:hover span {
   display:flex;
   gap:30px;
   align-items:center;
+  justify-content: center;
+  text-align: center;
 }
 
 .featured-player-avatar-ring {

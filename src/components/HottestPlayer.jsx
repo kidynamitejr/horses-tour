@@ -89,7 +89,7 @@ function HottestPlayer() {
       className="featured-player card"
     >
 
-      <h2>Hottest Player</h2>
+      <h2>Featured Player</h2>
 
       <div className="featured-player-content">
 

@@ -58,11 +58,18 @@ function PastMatches() {
 
         setPlayerIds(idsByName)
 
-        // An event is "past" once it's marked Played in the sheet,
-        // rather than purely by date - otherwise an event played today
-        // would be excluded by a strict "before today" date check.
+        // An event is "past" once it has actual results in Match Entry,
+        // rather than trusting the Schedule tab's own Status column -
+        // that column now holds the event type ("Regular"/"Major")
+        // instead of "Played"/"Planned", so it can't tell us that anymore.
+        const playedEventIds = new Set(
+          matchEntryData
+            .filter((row) => row.Player && row.Contributions)
+            .map((row) => row["Event ID"])
+        )
+
         const pastEvents = scheduleData
-          .filter((event) => event.Status && event.Status.trim().toLowerCase() === "played")
+          .filter((event) => playedEventIds.has(event["Event ID"]))
           .sort((a, b) => new Date(b.Date) - new Date(a.Date))
 
         setMatches(pastEvents)

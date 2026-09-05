@@ -159,6 +159,12 @@ function TeamDetailModal({ modalTeam, highestCombined, eventNameById, playerIds,
             </span>
           )}
 
+          {modalTeam.isUnderdog && (
+            <span className="next-event-underdog-badge next-event-modal-underdog-badge">
+              Underdog
+            </span>
+          )}
+
         </div>
 
         <div className="next-event-modal-players">
@@ -190,7 +196,13 @@ function TeamDetailModal({ modalTeam, highestCombined, eventNameById, playerIds,
 
         <div className="next-event-detail-block">
 
-          <h4>🏌️ {modalTeam.isFavored ? "Favored to Win" : "Combined Ranking Factor"}</h4>
+          <h4>
+            🏌️ {modalTeam.isFavored
+              ? "Favored to Win"
+              : modalTeam.isUnderdog
+                ? "Underdog"
+                : "Combined Ranking Factor"}
+          </h4>
 
           <p>
             This team's combined Ranking Factor is{" "}
@@ -198,7 +210,9 @@ function TeamDetailModal({ modalTeam, highestCombined, eventNameById, playerIds,
             both players' season Ranking Factor.
             {modalTeam.isFavored
               ? " It's the highest combined average of any team in this matchup, making them the favorite to finish on top."
-              : ` ${modalTeam.leaderTeamLabel} leads the field at ${highestCombined.toFixed(1)}.`}
+              : modalTeam.isUnderdog
+                ? " It's the lowest combined average of any team in this matchup, making them the underdog heading into this event."
+                : ` ${modalTeam.leaderTeamLabel} leads the field at ${highestCombined.toFixed(1)}.`}
           </p>
 
         </div>
@@ -273,13 +287,13 @@ function NextEventFeature() {
   const today = new Date()
   today.setHours(0, 0, 0, 0)
 
+  // "Upcoming" is decided purely by date rather than the sheet's Status
+  // column - that column now holds the event type ("Regular"/"Major")
+  // instead of "Played"/"Planned", so it can't be used to tell whether an
+  // event has already happened.
   const nextEvent = schedule
     .filter((event) => {
       if (!event.Date) return false
-
-      if (!event.Status || event.Status.toLowerCase() !== "planned") {
-        return false
-      }
 
       const eventDate = new Date(event.Date)
 
@@ -337,11 +351,21 @@ function NextEventFeature() {
     ? Math.max(...teamsWithScores.map((t) => t.combined))
     : 0
 
+  // Underdog = whichever pairing has the lowest combined Ranking Factor -
+  // only meaningful when there's more than one team and the field isn't
+  // completely tied (e.g. every pairing brand new with no history yet).
+  const lowestCombined = teamsWithScores.length > 0
+    ? Math.min(...teamsWithScores.map((t) => t.combined))
+    : 0
+
   const leaderTeamLabel = teamsWithScores.find((t) => t.combined === highestCombined)?.team ?? ""
+
+  const hasSpread = teamsWithScores.length > 1 && highestCombined > lowestCombined
 
   const nextEventTeams = teamsWithScores.map((t) => ({
     ...t,
     isFavored: t.combined === highestCombined && t.combined > 0,
+    isUnderdog: hasSpread && t.combined === lowestCombined,
     leaderTeamLabel,
   }))
 
@@ -390,7 +414,7 @@ function NextEventFeature() {
                 {nextEventTeams.map((t) => (
 
                   <div
-                    className={`next-event-matchup-card${t.isFavored ? " next-event-favored" : ""}`}
+                    className={`next-event-matchup-card${t.isFavored ? " next-event-favored" : ""}${t.isUnderdog ? " next-event-underdog" : ""}`}
                     key={t.team}
                     onClick={() => setModalTeam(t)}
                   >
@@ -399,6 +423,10 @@ function NextEventFeature() {
 
                     {t.isFavored && (
                       <span className="next-event-favored-badge">★ Favored</span>
+                    )}
+
+                    {t.isUnderdog && (
+                      <span className="next-event-underdog-badge">Underdog</span>
                     )}
 
                     <div className="next-event-matchup-players">

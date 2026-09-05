@@ -107,17 +107,28 @@ function Schedule() {
 
 
               <td>
-                {event.Status && (
-                  <span
-                    className={`status-badge ${
-                      event.Status.trim().toLowerCase() === "played"
-                        ? "status-played"
+                {event.Status && (() => {
+
+                  const statusText = event.Status.trim()
+                  const statusLower = statusText.toLowerCase()
+                  const isMajor = statusLower === "major"
+
+                  const badgeClass = isMajor
+                    ? "status-major"
+                    : statusLower === "played"
+                      ? "status-played"
+                      : statusLower === "regular"
+                        ? "status-regular"
                         : "status-planned"
-                    }`}
-                  >
-                    {event.Status.trim()}
-                  </span>
-                )}
+
+                  return (
+                    <span className={`status-badge ${badgeClass}`}>
+                      {isMajor && <span className="status-major-star">★</span>}
+                      {statusText}
+                    </span>
+                  )
+
+                })()}
               </td>
 
 

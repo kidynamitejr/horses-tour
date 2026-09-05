@@ -91,9 +91,6 @@ function Stats() {
         const highestSingleEvent = getLeaders(playerStats, "Highest Round Points")
 
         const summaries = getPlayerSummaries(matchEntry)
-        const totalPoints = getLeadersFromEntries(
-          Object.entries(summaries).map(([name, s]) => ({ name, value: s.totalPowerScore }))
-        )
 
         // Computed from Contributions (only rows where Contributions is
         // filled in) rather than the sheet's own Average Points column,
@@ -135,11 +132,6 @@ function Stats() {
             Record: "Highest Single Event Points",
             Score: formatScore(highestSingleEvent.value),
             Team: highestSingleEvent.names.join(", "),
-          },
-          {
-            Record: "Most Power Score",
-            Score: formatScore(totalPoints.value),
-            Team: totalPoints.names.join(", "),
           },
           {
             Record: "Highest Average Points",

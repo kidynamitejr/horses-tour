@@ -59,7 +59,7 @@ function Dashboard() {
 
         <h3>{players.filter((p) => !/\(sub\)/i.test(p.Name)).length}</h3>
 
-        <p>Registered Players</p>
+        <p>Registered Members</p>
 
       </div>
 
@@ -69,7 +69,11 @@ function Dashboard() {
 
         <h3>{events.length}</h3>
 
-        <p>Season Events</p>
+        <p>2026 Season Events</p>
+
+        <p className="dashboard-card-subtext">
+          {events.filter((e) => e.Status && e.Status.trim().toLowerCase() === "planned").length} Remaining
+        </p>
 
       </div>
 

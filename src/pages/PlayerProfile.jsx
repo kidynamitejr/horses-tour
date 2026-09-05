@@ -209,11 +209,6 @@ function PlayerProfile() {
           </div>
 
           <div className="stat-card">
-            <h3>Power Points</h3>
-            <p className="stat-value">{summary?.totalPowerScore ?? "0"}</p>
-          </div>
-
-          <div className="stat-card">
             <h3>Ranking Factor</h3>
             <p className="stat-value">{summary?.avgRankingPoints ?? "-"}</p>
           </div>
