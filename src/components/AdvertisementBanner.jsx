@@ -35,8 +35,6 @@ function AdvertisementBanner() {
           top to bottom. */}
       <div className="ad-banner ad-banner-desktop">
 
-        <span className="ad-banner-label">Advertisement</span>
-
         <button
           type="button"
           className="ad-banner-close"
@@ -63,8 +61,6 @@ function AdvertisementBanner() {
 
       {/* Mobile: a full-width bar pinned to the bottom, left to right. */}
       <div className="ad-banner ad-banner-mobile">
-
-        <span className="ad-banner-label">Advertisement</span>
 
         <a
           href={ad["Store Link"]}

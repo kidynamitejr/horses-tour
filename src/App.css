@@ -2642,25 +2642,8 @@ a.next-event-player:hover span {
   overflow: hidden;
 }
 
-/* Label and close button float on top of the full-bleed image itself,
-   rather than taking up their own row/column and shrinking it. */
-.ad-banner-label {
-  position: absolute;
-  top: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 9px;
-  text-transform: uppercase;
-  letter-spacing: .8px;
-  color: white;
-  background: rgba(0,0,0,.55);
-  padding: 3px 9px;
-  border-radius: 20px;
-  z-index: 2;
-  pointer-events: none;
-  white-space: nowrap;
-}
-
+/* The close button floats on top of the full-bleed image itself,
+   rather than taking up its own row/column and shrinking it. */
 .ad-banner-close {
   position: absolute;
   top: 6px;
