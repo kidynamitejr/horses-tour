@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom"
 
 import Header from "./components/Header"
 import Hero from "./components/Hero"
+import AdvertisementBanner from "./components/AdvertisementBanner"
 
 import Home from "./pages/Home"
 import LeaderboardPage from "./pages/LeaderboardPage"
@@ -126,6 +127,8 @@ function Layout() {
       <footer className="footer">
         <p>© 2026 Horses Tour</p>
       </footer>
+
+      <AdvertisementBanner />
     </div>
   )
 }

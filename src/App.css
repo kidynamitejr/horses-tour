@@ -2629,3 +2629,135 @@ a.next-event-player:hover span {
 [data-theme="dark"] .theme-toggle {
   background: rgba(255,255,255,.1);
 }
+
+/* ============================== */
+/* ADVERTISEMENT BANNER */
+/* ============================== */
+
+.ad-banner {
+  position: fixed;
+  z-index: 40;
+  background: white;
+  box-shadow: 0 4px 16px rgba(0,0,0,.18);
+}
+
+.ad-banner-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  color: #999;
+  text-align: center;
+}
+
+.ad-banner-close {
+  border: none;
+  background: rgba(0,0,0,.55);
+  color: white;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ad-banner-link {
+  display: block;
+}
+
+.ad-banner-image {
+  display: block;
+  object-fit: contain;
+}
+
+/* Desktop: a skyscraper pinned to the right edge, vertically centered -
+   floats over the page's natural side margin rather than needing the
+   whole layout redesigned around a sidebar column. */
+.ad-banner-desktop {
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  width: 160px;
+  border-radius: 10px 0 0 10px;
+  overflow: hidden;
+  padding: 8px 8px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.ad-banner-desktop .ad-banner-close {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 20px;
+  height: 20px;
+}
+
+.ad-banner-desktop .ad-banner-image {
+  width: 100%;
+  max-height: 420px;
+  border-radius: 6px;
+}
+
+.ad-banner-mobile {
+  display: none;
+}
+
+@media(max-width: 900px) {
+
+  .ad-banner-desktop {
+    display: none;
+  }
+
+  .ad-banner-mobile {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 6px 10px;
+  }
+
+  .ad-banner-mobile .ad-banner-label {
+    writing-mode: vertical-rl;
+    flex-shrink: 0;
+  }
+
+  .ad-banner-mobile .ad-banner-link {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    justify-content: center;
+  }
+
+  .ad-banner-mobile .ad-banner-image {
+    max-height: 60px;
+    max-width: 100%;
+  }
+
+  .ad-banner-mobile .ad-banner-close {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+  }
+
+  /* Leaves room at the bottom of the page so the fixed ad bar doesn't
+     permanently cover the last bit of footer content. */
+  .footer {
+    padding-bottom: 85px;
+  }
+
+}
+
+[data-theme="dark"] .ad-banner {
+  background: #1b222c;
+}
+
+[data-theme="dark"] .ad-banner-label {
+  color: #7d8894;
+}
