@@ -31,8 +31,8 @@ function AdvertisementBanner() {
 
     <>
 
-      {/* Desktop: a skyscraper ad pinned to the right edge of the
-          viewport, vertically centered. */}
+      {/* Desktop: a full-height skyscraper pinned to the right edge,
+          top to bottom. */}
       <div className="ad-banner ad-banner-desktop">
 
         <span className="ad-banner-label">Advertisement</span>
@@ -61,7 +61,7 @@ function AdvertisementBanner() {
 
       </div>
 
-      {/* Mobile: a bar pinned to the bottom of the viewport. */}
+      {/* Mobile: a full-width bar pinned to the bottom, left to right. */}
       <div className="ad-banner ad-banner-mobile">
 
         <span className="ad-banner-label">Advertisement</span>
