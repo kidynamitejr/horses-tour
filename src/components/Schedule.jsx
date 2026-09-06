@@ -111,17 +111,21 @@ function Schedule() {
 
                   const statusText = event.Status.trim()
                   const statusLower = statusText.toLowerCase()
-                  // Championship (e.g. The Island Championship) gets the
-                  // same special treatment as Major.
-                  const isSpecial = statusLower === "major" || statusLower === "championship"
+                  // Major and Championship both get special treatment,
+                  // but with their own distinct colors.
+                  const isMajor = statusLower === "major"
+                  const isChampionship = statusLower === "championship"
+                  const isSpecial = isMajor || isChampionship
 
-                  const badgeClass = isSpecial
+                  const badgeClass = isMajor
                     ? "status-major"
-                    : statusLower === "played"
-                      ? "status-played"
-                      : statusLower === "regular"
-                        ? "status-regular"
-                        : "status-planned"
+                    : isChampionship
+                      ? "status-championship"
+                      : statusLower === "played"
+                        ? "status-played"
+                        : statusLower === "regular"
+                          ? "status-regular"
+                          : "status-planned"
 
                   return (
                     <span className={`status-badge ${badgeClass}`}>

@@ -285,10 +285,19 @@ tbody tr:last-child td {
   color: #55606b;
 }
 
+.status-badge.status-championship {
+  background: linear-gradient(135deg, #fff176, #fdd835);
+  color: #6b4e00;
+  box-shadow: 0 0 0 3px #ffd700, 0 3px 10px rgba(253,216,53,.5);
+  letter-spacing: .8px;
+}
+
+/* "Reflective" orange - a glossy highlight near the top via the inset
+   shadow, like a polished enamel badge, rather than a flat fill. */
 .status-badge.status-major {
-  background: linear-gradient(135deg, #7b3fa0, #4a2170);
-  color: #ffffff;
-  box-shadow: 0 3px 10px rgba(90,40,150,.45);
+  background: linear-gradient(180deg, #ffcb80 0%, #ff8c1a 55%, #e8710a 100%);
+  color: #5a2600;
+  box-shadow: 0 3px 10px rgba(255,140,0,.5), inset 0 1px 3px rgba(255,255,255,.7);
   letter-spacing: .8px;
 }
 
