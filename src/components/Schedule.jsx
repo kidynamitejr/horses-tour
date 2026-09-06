@@ -74,7 +74,7 @@ function Schedule() {
             <th>Event</th>
             <th>Date</th>
             <th>Course</th>
-            <th>Status</th>
+            <th>Classification</th>
             <th>Winner</th>
             <th>Tee Times</th>
 
