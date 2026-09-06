@@ -1,6 +1,7 @@
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 import { Link } from "react-router-dom"
+import confetti from "canvas-confetti"
 import { slugify } from "../utils/slugify"
 import { ordinal } from "../utils/ordinal"
 
@@ -261,6 +262,59 @@ function MatchResultsView({ eventId, matchEntry, schedule, playerIds, eyebrow, o
 
   const teams = Object.values(teamsByLetter).sort((a, b) => a.teamPlacement - b.teamPlacement)
 
+  const celebratedEventId = useRef(null)
+  const confettiCanvasRef = useRef(null)
+  const sectionRef = useRef(null)
+
+  // A little confetti burst the first time a match's results (with an
+  // actual champion) actually scroll into view for this event - waits
+  // for visibility (via IntersectionObserver) instead of firing the
+  // instant the component mounts, since on the home page this card sits
+  // below the fold and would otherwise finish animating before anyone
+  // scrolls down to see it. Guarded by a ref so it only fires once per
+  // event. Bound to our own canvas (instead of the default full-page
+  // one) so it stays contained inside this card instead of covering the
+  // screen.
+  useEffect(() => {
+
+    if (teams.length === 0) return
+    if (celebratedEventId.current === eventId) return
+    if (!sectionRef.current || !confettiCanvasRef.current) return
+
+    const canvas = confettiCanvasRef.current
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+
+        if (!entry.isIntersecting) return
+        if (celebratedEventId.current === eventId) return
+
+        celebratedEventId.current = eventId
+
+        const fireConfetti = confetti.create(canvas, {
+          resize: true,
+          useWorker: true,
+        })
+
+        fireConfetti({
+          particleCount: 120,
+          spread: 80,
+          origin: { y: 0.6 },
+          colors: ["#d9b64a", "#f4d374", "#003b5c", "#ffffff"],
+        })
+
+        observer.disconnect()
+
+      },
+      { threshold: 0.4 }
+    )
+
+    observer.observe(sectionRef.current)
+
+    return () => observer.disconnect()
+
+  }, [eventId, teams.length])
+
   // Every player from every team, ranked 1st to last by how they
   // individually did that match (Match Ranking Points) - independent of
   // who their teammate was or how the team as a whole finished.
@@ -273,11 +327,13 @@ function MatchResultsView({ eventId, matchEntry, schedule, playerIds, eyebrow, o
 
   return (
 
-    <section className="next-event-feature last-match-feature">
+    <section className="next-event-feature last-match-feature" ref={sectionRef}>
 
       <CourseBackground course={event?.Course} />
 
       <div className="next-event-overlay" />
+
+      <canvas ref={confettiCanvasRef} className="confetti-canvas" />
 
       {onCollapse && (
         <button

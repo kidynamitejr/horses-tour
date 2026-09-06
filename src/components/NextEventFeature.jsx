@@ -305,6 +305,16 @@ function NextEventFeature() {
     })
     .sort((a, b) => new Date(a.Date) - new Date(b.Date))[0]
 
+  let daysUntilNextEvent = null
+
+  if (nextEvent?.Date) {
+    const eventDate = new Date(nextEvent.Date)
+    if (!isNaN(eventDate)) {
+      eventDate.setHours(0, 0, 0, 0)
+      daysUntilNextEvent = Math.round((eventDate - today) / (1000 * 60 * 60 * 24))
+    }
+  }
+
   // Teams read from the Hard Key Matchmaking table (starting row 14,
   // column C for the Team label) on the Team Pairing sheet tab, rather
   // than being computed from Match Entry - that table is the
@@ -394,6 +404,16 @@ function NextEventFeature() {
             <p className="next-event-eyebrow">Up Next</p>
 
             <h2 className="next-event-title">{nextEvent["Event Name"]}</h2>
+
+            {daysUntilNextEvent !== null && (
+              <span className="next-event-countdown">
+                {daysUntilNextEvent === 0
+                  ? "Today!"
+                  : daysUntilNextEvent === 1
+                    ? "1 Day Away"
+                    : `${daysUntilNextEvent} Days Away`}
+              </span>
+            )}
 
             <p className="next-event-meta">
               {nextEvent.Date}

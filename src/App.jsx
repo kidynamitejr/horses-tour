@@ -16,6 +16,8 @@ import RulesPage from "./pages/RulesPage"
 import PlayerProfile from "./pages/PlayerProfile"
 import ArticlePage from "./pages/ArticlePage"
 import PointsCalculatorPage from "./pages/PointsCalculatorPage"
+import ComparePlayersPage from "./pages/ComparePlayersPage"
+import HallOfChampionsPage from "./pages/HallOfChampionsPage"
 
 function Layout() {
   const location = useLocation()
@@ -62,6 +64,14 @@ function Layout() {
       title: "POINTS CALCULATOR",
       subtitle: "Calculate player points for a completed event.",
     },
+    "/compare-players": {
+      title: "COMPARE PLAYERS",
+      subtitle: "See how any two players stack up head-to-head.",
+    },
+    "/hall-of-champions": {
+      title: "HALL OF CHAMPIONS",
+      subtitle: "Every champion crowned across Horses Tour history.",
+    },
   }
 
   const currentHero =
@@ -101,6 +111,10 @@ function Layout() {
           <Route path="/rules" element={<RulesPage />} />
 
           <Route path="/calculator" element={<PointsCalculatorPage />} />
+
+          <Route path="/compare-players" element={<ComparePlayersPage />} />
+
+          <Route path="/hall-of-champions" element={<HallOfChampionsPage />} />
 
           <Route
             path="/player-profile/:name"

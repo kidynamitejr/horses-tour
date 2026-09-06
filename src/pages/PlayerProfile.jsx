@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom"
+import { useParams, Link } from "react-router-dom"
 import { useEffect, useState } from "react"
 import {
   LineChart,
@@ -19,6 +19,8 @@ import {
 import { getPlayerSummaries } from "../utils/matchEntry"
 import { getPlayerWinnings, formatCurrency } from "../utils/winnings"
 import { getMajorWins } from "../utils/majors"
+import { getPlayerBadges } from "../utils/badges"
+import TradingCardModal from "../components/TradingCardModal"
 
 function PlayerProfile() {
   const { name } = useParams()
@@ -35,6 +37,8 @@ function PlayerProfile() {
   const [loading, setLoading] = useState(true)
   const [totalWinnings, setTotalWinnings] = useState(0)
   const [majorWins, setMajorWins] = useState(0)
+  const [badges, setBadges] = useState(null)
+  const [showTradingCard, setShowTradingCard] = useState(false)
 
   useEffect(() => {
     async function loadPlayer() {
@@ -61,6 +65,10 @@ function PlayerProfile() {
           const majorWinsByPlayer = getMajorWins(events)
 
           setMajorWins(majorWinsByPlayer[foundPlayer.Name.trim()] || 0)
+
+          const badgesByPlayer = getPlayerBadges(matchEntry)
+
+          setBadges(badgesByPlayer[foundPlayer.Name.trim()] || null)
 
           const summaries = getPlayerSummaries(matchEntry)
           const foundSummary = summaries[foundPlayer.Name] || null
@@ -164,6 +172,46 @@ function PlayerProfile() {
   return (
     <>
       <section className="player-profile-header">
+
+        <div className="player-profile-actions">
+
+          <div className="player-profile-action-buttons">
+
+            <Link
+              to={`/compare-players?a=${player["Player ID"]}`}
+              className="player-profile-action-button"
+            >
+              ⇄ Compare Players
+            </Link>
+
+            <button
+              type="button"
+              className="player-profile-action-button"
+              onClick={() => setShowTradingCard(true)}
+            >
+              🎴 Trading Card
+            </button>
+
+          </div>
+
+          {badges && Object.values(badges).some((b) => b.earned) && (
+            <div className="player-badge-list">
+              {Object.values(badges)
+                .filter((b) => b.earned)
+                .map((b) => (
+                  <div className="player-badge-row" key={b.label}>
+                    <span className="player-badge-row-icon">{b.icon}</span>
+                    <div>
+                      <strong>{b.label}</strong>
+                      <p>{b.detail}</p>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          )}
+
+        </div>
+
         <div className="player-profile-avatar-ring">
           <img
             src={`${import.meta.env.BASE_URL}images/players/${player["Player ID"]}.jpg`}
@@ -315,6 +363,19 @@ function PlayerProfile() {
             </LineChart>
           </ResponsiveContainer>
         </section>
+      )}
+
+      {showTradingCard && (
+        <TradingCardModal
+          player={player}
+          stats={{
+            rank: summary?.rank ?? null,
+            wins: summary?.wins ?? 0,
+            majorWins,
+            winnings: totalWinnings,
+          }}
+          onClose={() => setShowTradingCard(false)}
+        />
       )}
     </>
   )

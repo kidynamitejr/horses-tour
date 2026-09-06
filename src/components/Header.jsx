@@ -4,6 +4,18 @@ import { useEffect, useState } from "react"
 function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
 
+  // Defaults to the OS/browser preference the first time a visitor
+  // shows up, then remembers whatever they pick from here on.
+  const [theme, setTheme] = useState(() => {
+    try {
+      const saved = localStorage.getItem("horses-tour-theme")
+      if (saved) return saved
+      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+    } catch {
+      return "light"
+    }
+  })
+
   useEffect(() => {
 
     function handleScroll() {
@@ -15,6 +27,18 @@ function Header() {
     return () => window.removeEventListener("scroll", handleScroll)
 
   }, [])
+
+  useEffect(() => {
+
+    document.documentElement.setAttribute("data-theme", theme)
+
+    try {
+      localStorage.setItem("horses-tour-theme", theme)
+    } catch {
+      // Private browsing etc. - theme just won't persist, that's fine.
+    }
+
+  }, [theme])
 
   return (
     <header className={`header${isScrolled ? " header-scrolled" : ""}`}>
@@ -66,7 +90,21 @@ function Header() {
         <Link to="/rules">
           Rules
         </Link>
+
+        <Link to="/hall-of-champions">
+          Hall of Champions
+        </Link>
       </nav>
+
+      <button
+        type="button"
+        className="theme-toggle"
+        onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
+        aria-label="Toggle dark mode"
+        title="Toggle dark mode"
+      >
+        {theme === "dark" ? "☀️" : "🌙"}
+      </button>
     </header>
   )
 }
