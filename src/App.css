@@ -2680,10 +2680,10 @@ a.next-event-player:hover span {
    bottom - floats over the page's natural side margin rather than
    needing the whole layout redesigned around a sidebar column. */
 .ad-banner-desktop {
-  top: 0;
+  top: 50%;
   right: 0;
-  bottom: 0;
-  height: 100vh;
+  transform: translateY(-50%);
+  height: 70vh;
   width: 190px;
 }
 
