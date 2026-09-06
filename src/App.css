@@ -1896,6 +1896,36 @@ a.next-event-player:hover span {
     margin-top:15px;
   }
 
+  /* Once scrolled, the header collapses much further on mobile too -
+     otherwise the multi-row wrapped nav keeps eating a big chunk of the
+     screen the whole time you're scrolling through a page. */
+  .header-scrolled{
+    padding:8px 16px;
+  }
+
+  .header-scrolled .logo-container{
+    gap:8px;
+  }
+
+  .header-scrolled .logo-image{
+    height:26px;
+    width:26px;
+  }
+
+  .header-scrolled .logo-text{
+    font-size:13px;
+  }
+
+  .header-scrolled .nav{
+    margin-top:6px;
+    gap:8px;
+    row-gap:4px;
+  }
+
+  .header-scrolled .nav a{
+    font-size:10px;
+  }
+
   .player-grid,
   .stats-grid,
   .news-grid,
