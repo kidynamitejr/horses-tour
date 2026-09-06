@@ -1900,7 +1900,6 @@ a.next-event-player:hover span {
   .stats-grid,
   .news-grid,
   .gallery-grid,
-  .champion-grid,
   .leaderboard-charts{
     grid-template-columns:1fr;
   }
@@ -2476,6 +2475,23 @@ a.next-event-player:hover span {
 
   .compare-row {
     grid-template-columns: 1fr 1.2fr 1fr;
+  }
+
+  /* The header stacks logo/nav/toggle in a column on mobile - without
+     this the toggle button would fall in the normal flow below the nav
+     (bottom of the header) instead of staying pinned to the right. */
+  .theme-toggle {
+    position: absolute;
+    top: 18px;
+    right: 20px;
+  }
+
+  /* One card per row on mobile, scrolled through top to bottom, the
+     same way the News grid already behaves - this has to come after
+     .champion-grid's own base rule (defined later in the file) to
+     actually win. */
+  .champion-grid {
+    grid-template-columns: 1fr;
   }
 
 }
