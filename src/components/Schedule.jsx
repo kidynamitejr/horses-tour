@@ -111,9 +111,11 @@ function Schedule() {
 
                   const statusText = event.Status.trim()
                   const statusLower = statusText.toLowerCase()
-                  const isMajor = statusLower === "major"
+                  // Championship (e.g. The Island Championship) gets the
+                  // same special treatment as Major.
+                  const isSpecial = statusLower === "major" || statusLower === "championship"
 
-                  const badgeClass = isMajor
+                  const badgeClass = isSpecial
                     ? "status-major"
                     : statusLower === "played"
                       ? "status-played"
@@ -123,7 +125,7 @@ function Schedule() {
 
                   return (
                     <span className={`status-badge ${badgeClass}`}>
-                      {isMajor && <span className="status-major-star">★</span>}
+                      {isSpecial && <span className="status-major-star">★</span>}
                       {statusText}
                     </span>
                   )

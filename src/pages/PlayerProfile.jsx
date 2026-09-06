@@ -175,7 +175,7 @@ function PlayerProfile() {
           />
         </div>
 
-        <div>
+        <div className="player-profile-info">
           <p className="player-profile-eyebrow">Player Profile</p>
 
           <h1>{player.Name}</h1>
@@ -192,6 +192,11 @@ function PlayerProfile() {
             {player.Active}
           </span>
         </div>
+
+        {/* Balances the avatar's width so player-profile-info lands
+            dead-center in the banner instead of being pushed right by
+            the avatar's width. */}
+        <div className="player-profile-header-spacer" aria-hidden="true" />
       </section>
 
       <section className="card">

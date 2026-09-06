@@ -158,7 +158,7 @@ function Leaderboard() {
 
       <div className="table-scroll">
 
-      <table className="leaderboard-table">
+      <table className="leaderboard-table horsewide-table">
 
         <thead>
 
