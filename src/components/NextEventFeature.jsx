@@ -6,10 +6,12 @@ import {
   getSchedule,
   getTeamPairingGrid,
   getMatchEntry,
+  getEvents,
 } from "../data/googleSheets"
 import { getPlayerSummaries } from "../utils/matchEntry"
 import { slugify } from "../utils/slugify"
 import { ordinal } from "../utils/ordinal"
+import { getEventForecast } from "../utils/weather"
 
 const COURSE_IMAGE_EXTENSIONS = ["jpg", "jpeg", "png", "webp"]
 
@@ -255,10 +257,12 @@ function NextEventFeature() {
 
   const [playerIds, setPlayerIds] = useState({})
   const [schedule, setSchedule] = useState([])
+  const [events, setEvents] = useState([])
   const [teamPairingGrid, setTeamPairingGrid] = useState([])
   const [summaries, setSummaries] = useState({})
   const [matchEntry, setMatchEntry] = useState([])
   const [modalTeam, setModalTeam] = useState(null)
+  const [weather, setWeather] = useState(null)
 
   useEffect(() => {
 
@@ -275,6 +279,7 @@ function NextEventFeature() {
     })
 
     getSchedule().then(setSchedule)
+    getEvents().then(setEvents)
     getTeamPairingGrid().then(setTeamPairingGrid)
 
     getMatchEntry().then((data) => {
@@ -314,6 +319,30 @@ function NextEventFeature() {
       daysUntilNextEvent = Math.round((eventDate - today) / (1000 * 60 * 60 * 24))
     }
   }
+
+  const nextEventId = nextEvent?.["Event ID"]
+  const nextEventDate = nextEvent?.Date
+
+  // The course address lives on the Events tab, not Schedule.
+  const nextEventAddress = events.find(
+    (e) => e["Event ID"] === nextEventId
+  )?.Address
+
+  useEffect(() => {
+
+    let cancelled = false
+
+    const forecastPromise = (nextEventId && nextEventAddress && nextEventDate)
+      ? getEventForecast(nextEventAddress, nextEventDate)
+      : Promise.resolve(null)
+
+    forecastPromise.then((forecast) => {
+      if (!cancelled) setWeather(forecast)
+    })
+
+    return () => { cancelled = true }
+
+  }, [nextEventId, nextEventDate, nextEventAddress])
 
   // Teams read from the Hard Key Matchmaking table (starting row 14,
   // column C for the Team label) on the Team Pairing sheet tab, rather
@@ -405,15 +434,26 @@ function NextEventFeature() {
 
             <h2 className="next-event-title">{nextEvent["Event Name"]}</h2>
 
-            {daysUntilNextEvent !== null && (
-              <span className="next-event-countdown">
-                {daysUntilNextEvent === 0
-                  ? "Today!"
-                  : daysUntilNextEvent === 1
-                    ? "1 Day Away"
-                    : `${daysUntilNextEvent} Days Away`}
-              </span>
-            )}
+            <div className="next-event-badges">
+
+              {daysUntilNextEvent !== null && (
+                <span className="next-event-countdown">
+                  {daysUntilNextEvent === 0
+                    ? "Today!"
+                    : daysUntilNextEvent === 1
+                      ? "1 Day Away"
+                      : `${daysUntilNextEvent} Days Away`}
+                </span>
+              )}
+
+              {weather && (
+                <span className="next-event-weather">
+                  {weather.icon} {weather.high}° / {weather.low}°
+                  {weather.precipChance > 0 && ` · ${weather.precipChance}% rain`}
+                </span>
+              )}
+
+            </div>
 
             <p className="next-event-meta">
               {nextEvent.Date}
