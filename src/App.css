@@ -2567,9 +2567,19 @@ a.next-event-player:hover span {
 [data-theme="dark"] .calc-event,
 [data-theme="dark"] .rules-category,
 [data-theme="dark"] .compare-player-empty-avatar,
-[data-theme="dark"] .champion-card {
+[data-theme="dark"] .champion-card,
+[data-theme="dark"] .hero,
+[data-theme="dark"] .next-event-empty {
   background: #1b222c !important;
   color: #e7ebf0;
+}
+
+[data-theme="dark"] .next-event-empty h2 {
+  color: #f2d98a;
+}
+
+[data-theme="dark"] .next-event-empty p {
+  color: #a8b2bd;
 }
 
 [data-theme="dark"] .player-badge-row {
@@ -2621,7 +2631,8 @@ a.next-event-player:hover span {
 [data-theme="dark"] .player-card-stat-label,
 [data-theme="dark"] .dashboard-team-list li,
 [data-theme="dark"] .news-card-body p,
-[data-theme="dark"] .player-badge-row p {
+[data-theme="dark"] .player-badge-row p,
+[data-theme="dark"] .hero p {
   color: #a8b2bd !important;
 }
 
