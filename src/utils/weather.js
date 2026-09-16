@@ -81,12 +81,60 @@ function toISODate(dateStr) {
 
 }
 
-// Returns null if there's no address, the date can't be parsed, the
-// event is too far out for a forecast to exist yet (~16 days), or either
-// API call fails - the widget just doesn't render rather than erroring.
-export async function getEventForecast(address, dateStr) {
+// Everything after the street portion (city, state, zip) - used to build
+// a looser fallback query when the full address doesn't geocode.
+function extractCityState(address) {
 
-  if (!address) return null
+  const parts = address.split(",").map((p) => p.trim()).filter(Boolean)
+
+  if (parts.length < 2) return ""
+
+  return parts.slice(1).join(", ")
+
+}
+
+// Tries the exact address first, then falls back to looser queries built
+// from the course name - a street address can fail to geocode over a
+// small wording difference (e.g. the sheet says "Coppermill" as one word
+// while OpenStreetMap has the road as "Copper Mill", two words) even
+// though the venue itself is easy to find by name.
+async function geocodeEvent(address, courseName) {
+
+  if (address) {
+
+    const direct = await geocodeAddress(address)
+
+    if (direct) return direct
+
+  }
+
+  if (!courseName) return null
+
+  const cityState = address ? extractCityState(address) : ""
+
+  const attempts = cityState
+    ? [`${courseName} Golf Course, ${cityState}`, `${courseName}, ${cityState}`]
+    : [`${courseName} Golf Course`]
+
+  for (const query of attempts) {
+
+    const location = await geocodeAddress(query)
+
+    if (location) return location
+
+  }
+
+  return null
+
+}
+
+// Returns null if there's nothing to geocode, the date can't be parsed,
+// the event is too far out for a forecast to exist yet (~16 days), or
+// either API call fails - the widget just doesn't render rather than
+// erroring.
+export async function getEventForecast(address, dateStr, courseName) {
+
+  if (!address && !courseName) return null
 
   const iso = toISODate(dateStr)
 
@@ -105,7 +153,7 @@ export async function getEventForecast(address, dateStr) {
 
   try {
 
-    const location = await geocodeAddress(address)
+    const location = await geocodeEvent(address, courseName)
 
     if (!location) return null
 

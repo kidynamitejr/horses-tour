@@ -322,6 +322,7 @@ function NextEventFeature() {
 
   const nextEventId = nextEvent?.["Event ID"]
   const nextEventDate = nextEvent?.Date
+  const nextEventCourse = nextEvent?.Course
 
   // The course address lives on the Events tab, not Schedule.
   const nextEventAddress = events.find(
@@ -332,8 +333,8 @@ function NextEventFeature() {
 
     let cancelled = false
 
-    const forecastPromise = (nextEventId && nextEventAddress && nextEventDate)
-      ? getEventForecast(nextEventAddress, nextEventDate)
+    const forecastPromise = (nextEventId && nextEventDate && (nextEventAddress || nextEventCourse))
+      ? getEventForecast(nextEventAddress, nextEventDate, nextEventCourse)
       : Promise.resolve(null)
 
     forecastPromise.then((forecast) => {
@@ -342,7 +343,7 @@ function NextEventFeature() {
 
     return () => { cancelled = true }
 
-  }, [nextEventId, nextEventDate, nextEventAddress])
+  }, [nextEventId, nextEventDate, nextEventAddress, nextEventCourse])
 
   // Teams read from the Hard Key Matchmaking table (starting row 14,
   // column C for the Team label) on the Team Pairing sheet tab, rather
