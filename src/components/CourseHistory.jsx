@@ -17,9 +17,9 @@ const TEAM_COLORS = ["#2f80ed", "#d9a400", "#27ae60", "#eb5757", "#9b51e0", "#f2
 
 // Evenly spaced whole-number ticks that always include even par, so the
 // top of the axis doesn't end on an odd-sized gap.
-function getYAxis(teams) {
+function getYAxis(teams, field) {
 
-  const values = [0, ...teams.flatMap((team) => team.cumulative.filter((value) => value !== null))]
+  const values = [0, ...teams.flatMap((team) => team[field].filter((value) => value !== null))]
 
   const min = Math.min(...values)
   const max = Math.max(...values)
@@ -37,34 +37,28 @@ function getYAxis(teams) {
 
 }
 
-function MatchChart({ match, course }) {
+// `field` is "cumulative" (running total) or "scores" (each hole on its own).
+function ScoreChart({ match, field, caption, tooltipLabel }) {
 
-  const yAxis = getYAxis(match.teams)
+  const yAxis = getYAxis(match.teams, field)
 
   const data = HOLES.map((hole, index) => {
 
     const point = { hole }
 
     match.teams.forEach((team) => {
-      point[team.letter] = team.cumulative[index]
+      point[team.letter] = team[field][index]
     })
 
     return point
 
   })
 
-  // Legend doubles as a mini results list: best round first.
-  const legendTeams = match.teams
-    .map((team, index) => ({ ...team, color: TEAM_COLORS[index % TEAM_COLORS.length] }))
-    .sort((a, b) => (a.total ?? Infinity) - (b.total ?? Infinity))
-
   return (
 
-    <div className="course-match-body">
+    <>
 
-      <p className="course-chart-caption">
-        Running score over par after each hole (best score on top)
-      </p>
+      <p className="course-chart-caption">{caption}</p>
 
       <div className="course-chart-wrap">
 
@@ -103,7 +97,7 @@ function MatchChart({ match, course }) {
                 border: "1px solid var(--chart-tooltip-border)",
                 borderRadius: 10,
               }}
-              labelFormatter={(hole) => `After hole ${hole}`}
+              labelFormatter={(hole) => `${tooltipLabel} ${hole}`}
               formatter={(value, name) => [formatOverPar(value), name]}
             />
 
@@ -129,6 +123,30 @@ function MatchChart({ match, course }) {
 
       </div>
 
+    </>
+
+  )
+
+}
+
+function MatchChart({ match, course }) {
+
+  // Legend doubles as a mini results list: best round first.
+  const legendTeams = match.teams
+    .map((team, index) => ({ ...team, color: TEAM_COLORS[index % TEAM_COLORS.length] }))
+    .sort((a, b) => (a.total ?? Infinity) - (b.total ?? Infinity))
+
+  return (
+
+    <div className="course-match-body">
+
+      <ScoreChart
+        match={match}
+        field="cumulative"
+        caption="Running score over par after each hole (best score on top)"
+        tooltipLabel="After hole"
+      />
+
       <div className="course-legend">
 
         {legendTeams.map((team) => (
@@ -148,6 +166,13 @@ function MatchChart({ match, course }) {
         ))}
 
       </div>
+
+      <ScoreChart
+        match={match}
+        field="scores"
+        caption="Score over par on each hole (best score on top)"
+        tooltipLabel="Hole"
+      />
 
       {course && (
         <>
