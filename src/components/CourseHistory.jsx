@@ -143,7 +143,7 @@ function MatchChart({ match, course }) {
       <ScoreChart
         match={match}
         field="cumulative"
-        caption="Running score over par after each hole (best score on top)"
+        caption="Running score over par after each hole"
         tooltipLabel="After hole"
       />
 
@@ -166,13 +166,6 @@ function MatchChart({ match, course }) {
         ))}
 
       </div>
-
-      <ScoreChart
-        match={match}
-        field="scores"
-        caption="Score over par on each hole (best score on top)"
-        tooltipLabel="Hole"
-      />
 
       {course && (
         <>
