@@ -3008,3 +3008,11 @@ a.next-event-player:hover span {
   --chart-tooltip-fg: #e7ebf0;
   --chart-tooltip-border: #2c3542;
 }
+.course-record-heading {
+  margin: 28px 0 4px;
+  font-size: 20px;
+}
+
+[data-theme="dark"] .course-record-heading {
+  color: #f2d98a;
+}

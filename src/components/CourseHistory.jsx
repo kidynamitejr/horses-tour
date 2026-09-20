@@ -37,7 +37,7 @@ function getYAxis(teams) {
 
 }
 
-function MatchChart({ match }) {
+function MatchChart({ match, course }) {
 
   const yAxis = getYAxis(match.teams)
 
@@ -63,7 +63,7 @@ function MatchChart({ match }) {
     <div className="course-match-body">
 
       <p className="course-chart-caption">
-        Running score over par after each hole
+        Running score over par after each hole (best score on top)
       </p>
 
       <div className="course-chart-wrap">
@@ -86,6 +86,8 @@ function MatchChart({ match }) {
             <YAxis
               allowDecimals={false}
               width={36}
+              reversed
+              interval={0}
               domain={yAxis.domain}
               ticks={yAxis.ticks}
               tickFormatter={(value) => formatOverPar(value)}
@@ -146,6 +148,13 @@ function MatchChart({ match }) {
         ))}
 
       </div>
+
+      {course && (
+        <>
+          <h3 className="course-record-heading">Course Records</h3>
+          <CourseRecords course={course} />
+        </>
+      )}
 
     </div>
 
@@ -317,7 +326,7 @@ function CourseHistory() {
 
                 </button>
 
-                {open && <MatchChart match={match} />}
+                {open && <MatchChart match={match} course={courses.find((c) => c.course === (match.course || match.eventName))} />}
 
               </div>
 
@@ -328,20 +337,6 @@ function CourseHistory() {
         </div>
 
       </section>
-
-      {!loading && courses.length > 0 && (
-
-        <section className="card">
-
-          <h2>Course Records</h2>
-
-          {courses.map((course) => (
-            <CourseRecords course={course} key={course.course} />
-          ))}
-
-        </section>
-
-      )}
 
     </>
 
