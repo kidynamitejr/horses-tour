@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom"
+import { NavLink } from "react-router-dom"
 import { useEffect, useState } from "react"
 
 function Header() {
@@ -55,49 +55,49 @@ function Header() {
       </div>
 
       <nav className="nav">
-        <Link to="/">
+        <NavLink to="/" end>
           Home
-        </Link>
+        </NavLink>
 
-        <Link to="/leaderboard">
+        <NavLink to="/leaderboard">
           Leaderboard
-        </Link>
+        </NavLink>
 
-        <Link to="/schedule">
+        <NavLink to="/schedule">
           Schedule
-        </Link>
+        </NavLink>
 
-        <Link to="/players">
+        <NavLink to="/players">
           Players
-        </Link>
+        </NavLink>
 
-        <Link to="/stats">
+        <NavLink to="/stats">
           Stats
-        </Link>
+        </NavLink>
 
-        <Link to="/gallery">
+        <NavLink to="/gallery">
           Gallery
-        </Link>
+        </NavLink>
 
-        <Link to="/news">
+        <NavLink to="/news">
           News
-        </Link>
+        </NavLink>
 
-        <Link to="/past-matches">
+        <NavLink to="/past-matches">
           Past Matches
-        </Link>
+        </NavLink>
 
-        <Link to="/course-history">
+        <NavLink to="/course-history">
           Course History
-        </Link>
+        </NavLink>
 
-        <Link to="/rules">
+        <NavLink to="/rules">
           Rules
-        </Link>
+        </NavLink>
 
-        <Link to="/hall-of-champions">
+        <NavLink to="/hall-of-champions">
           Hall of Champions
-        </Link>
+        </NavLink>
       </nav>
 
       <button
