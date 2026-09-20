@@ -95,8 +95,15 @@ function ScoreChart({ match, field, caption, tooltipLabel }) {
                 background: "var(--chart-tooltip-bg)",
                 color: "var(--chart-tooltip-fg)",
                 border: "1px solid var(--chart-tooltip-border)",
-                borderRadius: 10,
+                borderRadius: 8,
+                padding: "4px 8px",
+                fontSize: 11,
+                lineHeight: 1.3,
               }}
+              labelStyle={{ margin: 0, fontSize: 11 }}
+              itemStyle={{ padding: 0, fontSize: 11 }}
+              offset={16}
+              wrapperStyle={{ pointerEvents: "none" }}
               labelFormatter={(hole) => `${tooltipLabel} ${hole}`}
               formatter={(value, name) => [formatOverPar(value), name]}
             />
