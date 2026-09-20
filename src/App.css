@@ -2761,3 +2761,250 @@ a.next-event-player:hover span {
 [data-theme="dark"] .ad-banner {
   background: #1b222c;
 }
+
+/* With eleven nav links the header runs out of room on smaller laptop
+   windows (just above the mobile breakpoint), which wrapped the logo
+   text onto two lines - tighten it up in that range. */
+@media(min-width: 901px) and (max-width: 1180px) {
+
+  .header {
+    gap: 10px;
+    padding: 0 14px;
+  }
+
+  .logo-container {
+    gap: 10px;
+  }
+
+  .logo-image {
+    height: 60px;
+    width: 60px;
+  }
+
+  .logo-text {
+    font-size: 20px;
+    white-space: nowrap;
+  }
+
+  .nav {
+    gap: 8px;
+  }
+
+  .nav a {
+    font-size: 12px;
+  }
+
+  .header-scrolled .nav a {
+    font-size: 11px;
+  }
+
+}
+
+/* ============================== */
+/* COURSE HISTORY */
+/* ============================== */
+
+.course-match-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.course-match {
+  background: white;
+  border: 1px solid #eef0f2;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.06);
+  overflow: hidden;
+}
+
+.course-match-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 22px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  transition: background .2s;
+}
+
+.course-match-header:hover {
+  background: #f8fafc;
+}
+
+.course-match-title {
+  display: block;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #003b5c;
+}
+
+.course-match-meta {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+  color: #777;
+}
+
+.course-match-summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-align: right;
+}
+
+.course-match-lowround {
+  font-size: 12px;
+  font-weight: 700;
+  color: #666;
+}
+
+.course-match-chevron {
+  font-size: 18px;
+  color: #003b5c;
+  transition: transform .2s;
+}
+
+.course-match-open .course-match-chevron {
+  transform: rotate(180deg);
+}
+
+.course-match-body {
+  padding: 6px 22px 22px;
+  border-top: 1px solid #eef0f2;
+}
+
+.course-chart-caption {
+  margin: 14px 0 6px;
+  font-size: 13px;
+  color: #777;
+}
+
+/* The chart draws its axes/grid in currentColor and reads its tooltip
+   colors from these variables, so it follows the light/dark theme
+   without any JS. */
+.course-chart-wrap {
+  color: #666;
+  --chart-tooltip-bg: #ffffff;
+  --chart-tooltip-fg: #1c1c1c;
+  --chart-tooltip-border: #e5e9ed;
+}
+
+.course-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin-top: 14px;
+}
+
+.course-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #333;
+}
+
+.course-legend-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.course-legend-score {
+  color: #888;
+}
+
+.course-record-block + .course-record-block {
+  margin-top: 34px;
+}
+
+.stat-card .course-stat-long {
+  font-size: 24px;
+  line-height: 1.25;
+}
+
+.course-record-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  margin: 0 0 16px;
+  font-size: 20px;
+  color: #003b5c;
+}
+
+.course-record-sub {
+  font-family: "Lato", Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #888;
+}
+
+@media(max-width: 900px) {
+
+  .course-match-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 16px;
+  }
+
+  .course-match-summary {
+    width: 100%;
+    justify-content: space-between;
+    text-align: left;
+  }
+
+  .course-match-body {
+    padding: 6px 12px 18px;
+  }
+
+}
+
+[data-theme="dark"] .course-match {
+  background: #1b222c !important;
+  border-color: #2c3542;
+}
+
+[data-theme="dark"] .course-match-header:hover {
+  background: #232c38;
+}
+
+[data-theme="dark"] .course-match-title,
+[data-theme="dark"] .course-match-chevron,
+[data-theme="dark"] .course-record-title {
+  color: #f2d98a;
+}
+
+[data-theme="dark"] .course-match-meta,
+[data-theme="dark"] .course-match-lowround,
+[data-theme="dark"] .course-chart-caption,
+[data-theme="dark"] .course-record-sub,
+[data-theme="dark"] .course-legend-score {
+  color: #a8b2bd;
+}
+
+[data-theme="dark"] .course-legend-item {
+  color: #e7ebf0;
+}
+
+[data-theme="dark"] .course-match-body {
+  border-top-color: #2c3542;
+}
+
+[data-theme="dark"] .course-chart-wrap {
+  color: #a8b2bd;
+  --chart-tooltip-bg: #1b222c;
+  --chart-tooltip-fg: #e7ebf0;
+  --chart-tooltip-border: #2c3542;
+}

@@ -19,6 +19,7 @@ import ArticlePage from "./pages/ArticlePage"
 import PointsCalculatorPage from "./pages/PointsCalculatorPage"
 import ComparePlayersPage from "./pages/ComparePlayersPage"
 import HallOfChampionsPage from "./pages/HallOfChampionsPage"
+import CourseHistoryPage from "./pages/CourseHistoryPage"
 
 function Layout() {
   const location = useLocation()
@@ -73,6 +74,10 @@ function Layout() {
       title: "HALL OF CHAMPIONS",
       subtitle: "Every champion crowned across Horses Tour history.",
     },
+    "/course-history": {
+      title: "COURSE HISTORY",
+      subtitle: "Hole-by-hole scoring from every match on the tour.",
+    },
   }
 
   const currentHero =
@@ -116,6 +121,8 @@ function Layout() {
           <Route path="/compare-players" element={<ComparePlayersPage />} />
 
           <Route path="/hall-of-champions" element={<HallOfChampionsPage />} />
+
+          <Route path="/course-history" element={<CourseHistoryPage />} />
 
           <Route
             path="/player-profile/:name"

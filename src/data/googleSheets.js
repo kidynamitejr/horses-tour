@@ -49,6 +49,9 @@ const TEAM_PAIRING_URL =
 const ADVERTISEMENTS_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vSaRzObvMpmjQNGdhCQZUoiwazKtbfL2t5tnf7n7nr34NvQQYrL9_dvNEJ_U1s0W5FMA_6V9N9S0GdY/pub?gid=1618727872&single=true&output=csv"
 
+const HOLE_BY_HOLE_URL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vSaRzObvMpmjQNGdhCQZUoiwazKtbfL2t5tnf7n7nr34NvQQYrL9_dvNEJ_U1s0W5FMA_6V9N9S0GdY/pub?gid=108366969&single=true&output=csv"
+
 // ==============================
 // CSV PARSER
 // ==============================
@@ -212,4 +215,8 @@ export async function getTeamPairingGrid() {
 
 export async function getAdvertisements() {
   return await readCSV(ADVERTISEMENTS_URL)
+}
+
+export async function getHoleByHole() {
+  return await readCSV(HOLE_BY_HOLE_URL)
 }

@@ -87,6 +87,10 @@ function Header() {
           Past Matches
         </Link>
 
+        <Link to="/course-history">
+          Course History
+        </Link>
+
         <Link to="/rules">
           Rules
         </Link>
