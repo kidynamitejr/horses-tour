@@ -368,8 +368,10 @@ function NextEventFeature() {
 
     })
 
-    Object.keys(byLetter).sort().forEach((letter) => {
-      rawTeams.push([`Team ${letter}`, byLetter[letter]])
+    // Displayed as "Team 1", "Team 2", etc. in letter order (A -> 1,
+    // B -> 2, ...) rather than showing the sheet's own letter.
+    Object.keys(byLetter).sort().forEach((letter, index) => {
+      rawTeams.push([`Team ${index + 1}`, byLetter[letter]])
     })
 
   }
