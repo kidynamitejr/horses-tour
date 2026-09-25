@@ -4,7 +4,6 @@ import { Link } from "react-router-dom"
 import {
   getPlayers,
   getSchedule,
-  getTeamPairingGrid,
   getMatchEntry,
   getEvents,
 } from "../data/googleSheets"
@@ -258,7 +257,6 @@ function NextEventFeature() {
   const [playerIds, setPlayerIds] = useState({})
   const [schedule, setSchedule] = useState([])
   const [events, setEvents] = useState([])
-  const [teamPairingGrid, setTeamPairingGrid] = useState([])
   const [summaries, setSummaries] = useState({})
   const [matchEntry, setMatchEntry] = useState([])
   const [modalTeam, setModalTeam] = useState(null)
@@ -280,7 +278,6 @@ function NextEventFeature() {
 
     getSchedule().then(setSchedule)
     getEvents().then(setEvents)
-    getTeamPairingGrid().then(setTeamPairingGrid)
 
     getMatchEntry().then((data) => {
       setMatchEntry(data)
@@ -345,20 +342,36 @@ function NextEventFeature() {
 
   }, [nextEventId, nextEventDate, nextEventAddress, nextEventCourse])
 
-  // Teams read from the Hard Key Matchmaking table (starting row 14,
-  // column C for the Team label) on the Team Pairing sheet tab, rather
-  // than being computed from Match Entry - that table is the
-  // hand-editable source of truth for who's actually playing next,
-  // including sub alternation. Keeps reading as long as the Team column
-  // keeps having a value, so more teams are picked up automatically.
+  // Teams read straight from the Match Entry tab's Team column, grouped
+  // by Event ID + team letter - the same source past-match recaps use.
+  // Unlike a played match, an upcoming event's rows have no Contributions
+  // yet, so this only requires a Player and a Team letter to be filled
+  // in, not a completed round.
   const rawTeams = []
 
-  for (let i = 13; i < teamPairingGrid.length; i++) {
-    const row = teamPairingGrid[i]
+  if (nextEventId) {
 
-    if (!row || !row[2]) break
+    const byLetter = {}
 
-    rawTeams.push([row[2], [row[3], row[4]].filter(Boolean)])
+    matchEntry.forEach((row) => {
+
+      if (!row.Player || !row.Team) return
+      if (row["Event ID"] !== nextEventId) return
+
+      const letter = row.Team.trim()
+
+      if (!letter) return
+
+      if (!byLetter[letter]) byLetter[letter] = []
+
+      byLetter[letter].push(row.Player.trim())
+
+    })
+
+    Object.keys(byLetter).sort().forEach((letter) => {
+      rawTeams.push([`Team ${letter}`, byLetter[letter]])
+    })
+
   }
 
   const eventNameById = {}
