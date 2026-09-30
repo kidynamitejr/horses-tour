@@ -55,6 +55,7 @@ function Leaderboard() {
       })
 
       setPlayerIds(idsByName)
+      setPlayers(data)
 
     })
 
@@ -67,10 +68,16 @@ function Leaderboard() {
 
   }, [])
 
-  // Substitute players (name tagged "(Sub)" in the Players sheet) fill in
-  // for someone else's match but shouldn't earn a season ranking of their
-  // own, so they're excluded from both leaderboards here.
+  // Match Entry keeps a row for every player who ever appeared in a
+  // matchup, even one that's since been removed from the Players sheet -
+  // so only names still on that sheet are eligible to rank. Substitute
+  // players (name tagged "(Sub)") fill in for someone else's match but
+  // shouldn't earn a season ranking of their own, so they're excluded
+  // from both leaderboards here too.
+  const activeNames = new Set(players.map((player) => player.Name))
+
   const rankablePlayers = Object.entries(summaries)
+    .filter(([name]) => activeNames.has(name))
     .filter(([name]) => !/\(sub\)/i.test(name))
 
   // Rank is computed here from Ranking Factor (AVG Ranking Points)
