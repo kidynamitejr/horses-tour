@@ -88,7 +88,10 @@ function Gallery() {
 
         const data = await getGallery()
 
-        setPhotos(data)
+        // New photos get added as new rows at the bottom of the sheet,
+        // so reversing puts the most recently added ones first instead
+        // of making people scroll down to find them.
+        setPhotos([...data].reverse())
 
       } catch (error) {
 

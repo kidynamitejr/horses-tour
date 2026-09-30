@@ -42,7 +42,7 @@ function Players() {
 
       <div className="player-grid">
 
-        {players.map((player) => {
+        {players.filter((player) => !/\bsub\b/i.test(player.Name)).map((player) => {
 
           const summary = summaries[player.Name.trim()]
           const majors = majorWins[player.Name.trim()] || 0
