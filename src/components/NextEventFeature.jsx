@@ -321,10 +321,12 @@ function NextEventFeature() {
   const nextEventDate = nextEvent?.Date
   const nextEventCourse = nextEvent?.Course
 
-  // The course address lives on the Events tab, not Schedule.
-  const nextEventAddress = events.find(
+  // The course address and tee time live on the Events tab, not Schedule.
+  const nextEventDetails = events.find(
     (e) => e["Event ID"] === nextEventId
-  )?.Address
+  )
+  const nextEventAddress = nextEventDetails?.Address
+  const nextEventTeeTime = nextEventDetails?.["Tee Time"]?.trim()
 
   useEffect(() => {
 
@@ -475,10 +477,10 @@ function NextEventFeature() {
               {nextEvent.Date}
               {nextEvent.Course && <span className="next-event-dot">•</span>}
               {nextEvent.Course}
-              {nextEvent["Tee Times"] && nextEvent["Tee Times"] !== "TBD" && (
+              {nextEventTeeTime && nextEventTeeTime !== "TBD" && (
                 <>
                   <span className="next-event-dot">•</span>
-                  {nextEvent["Tee Times"]}
+                  {nextEventTeeTime}
                 </>
               )}
             </p>

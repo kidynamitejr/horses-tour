@@ -1,7 +1,73 @@
 import { useEffect, useState } from "react"
-import { getPlayerStats, getContributions, getMatchEntry } from "../data/googleSheets"
+import { getPlayerStats, getContributions, getMatchEntry, getHoleByHole } from "../data/googleSheets"
 import { getMatchmakingPointsByPlayer } from "../utils/matchmakingPoints"
-import { getPlayerSummaries } from "../utils/matchEntry"
+import { getPlayerSummaries, getPlayedMatchEntryRows } from "../utils/matchEntry"
+import { HOLES, parseScore, cleanTeamName } from "../utils/courseHistory"
+
+// Counts each team's under-par holes (birdie or better) in every round on
+// the Hole by Hole tab and returns the highest count, with the teams and
+// events it happened at.
+function getMostBirdiesInRound(holeRows) {
+
+  const rounds = holeRows
+    .filter((row) => row["Event Name"])
+    .map((row) => {
+
+      const letter = (row["Team letter"] || "").trim()
+
+      return {
+        name: `${cleanTeamName(row.Team, letter)} (${row["Event Name"].trim()})`,
+        value: HOLES.filter((hole) => parseScore(row[`Hole ${hole}`]) < 0).length,
+      }
+
+    })
+
+  return getLeadersFromEntries(rounds)
+
+}
+
+// Longest run of back-to-back top-3 finishes per player, in Event ID
+// order. Only events the player actually played count, so sitting one
+// out doesn't break a streak.
+function getLongestTopThreeStreaks(matchEntry) {
+
+  const rowsByPlayer = {}
+
+  getPlayedMatchEntryRows(matchEntry).forEach((row) => {
+
+    const name = row.Player.trim()
+
+    if (/\(sub\)/i.test(name)) return
+
+    if (!rowsByPlayer[name]) rowsByPlayer[name] = []
+
+    rowsByPlayer[name].push(row)
+
+  })
+
+  return getLeadersFromEntries(
+    Object.entries(rowsByPlayer).map(([name, rows]) => {
+
+      let current = 0
+      let longest = 0
+
+      rows
+        .sort((a, b) => Number(a["Event ID"]) - Number(b["Event ID"]))
+        .forEach((row) => {
+
+          const placement = Number(row.Placement)
+
+          current = placement >= 1 && placement <= 3 ? current + 1 : 0
+          longest = Math.max(longest, current)
+
+        })
+
+      return { name, value: longest }
+
+    })
+  )
+
+}
 
 // Finds the single lowest Team Score in Match Entry (ignoring
 // future/unplayed rows, which have a blank score) and returns everyone
@@ -80,10 +146,11 @@ function Stats() {
 
       try {
 
-        const [playerStats, contributions, matchEntry] = await Promise.all([
+        const [playerStats, contributions, matchEntry, holeRows] = await Promise.all([
           getPlayerStats(),
           getContributions(),
           getMatchEntry(),
+          getHoleByHole(),
         ])
 
         const lowestTeamScore = getLowestTeamScore(matchEntry)
@@ -119,6 +186,10 @@ function Stats() {
           rankableEntries.map(([name, s]) => ({ name, value: s.topThree }))
         )
 
+        const topThreeStreak = getLongestTopThreeStreaks(matchEntry)
+
+        const mostBirdies = getMostBirdiesInRound(holeRows)
+
         const combined = []
 
         combined.push({
@@ -152,6 +223,16 @@ function Stats() {
             Record: "Most Top 3 Finishes",
             Score: formatScore(topThree.value),
             Team: topThree.names.join(", "),
+          },
+          {
+            Record: "Longest Top 3 Streak",
+            Score: formatScore(topThreeStreak.value),
+            Team: topThreeStreak.names.join(", "),
+          },
+          {
+            Record: "Most Birdies in a Game",
+            Score: formatScore(mostBirdies.value),
+            Team: mostBirdies.names.join(", "),
           }
         )
 

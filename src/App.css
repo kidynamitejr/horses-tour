@@ -3079,7 +3079,9 @@ a.next-event-player:hover span {
   width: 55%;
 }
 
-@media(min-width: 901px) and (max-width: 1560px) {
+/* No upper limit: #root caps the page at 1126px wide, so the header never
+   gets more room on bigger screens and needs these compact sizes there too. */
+@media(min-width: 901px) {
 
   .logo-text {
     white-space: nowrap;

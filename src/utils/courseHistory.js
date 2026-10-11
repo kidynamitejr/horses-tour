@@ -8,7 +8,7 @@ const norm = (value) => (value || "").trim().toLowerCase()
 
 // Blank cells stay null (an unplayed hole is not a 0), and "E" is even
 // par in case the sheet's number format displays zero that way.
-function parseScore(value) {
+export function parseScore(value) {
 
   const text = (value ?? "").toString().trim()
 
@@ -51,7 +51,7 @@ function getEventYear(dateStr) {
 
 // The Team column is a formula in the sheet - if it errors or is blank,
 // fall back to the team letter instead of showing "#N/A".
-function cleanTeamName(name, letter) {
+export function cleanTeamName(name, letter) {
 
   const text = (name || "").trim()
 

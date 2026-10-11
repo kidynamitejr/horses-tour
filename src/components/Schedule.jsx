@@ -1,23 +1,34 @@
 import { useEffect, useState } from "react"
-import { getSchedule, getMatchEntry } from "../data/googleSheets"
+import { getSchedule, getMatchEntry, getEvents } from "../data/googleSheets"
 
 
 function Schedule() {
 
   const [events, setEvents] = useState([])
   const [winnersByEventId, setWinnersByEventId] = useState({})
+  const [teeTimesByEventId, setTeeTimesByEventId] = useState({})
 
 
   useEffect(() => {
 
     async function loadSchedule() {
 
-      const [data, matchEntry] = await Promise.all([
+      const [data, matchEntry, eventDetails] = await Promise.all([
         getSchedule(),
         getMatchEntry(),
+        getEvents(),
       ])
 
       setEvents(data)
+
+      // Tee times are kept on the Events tab's "Tee Time" column.
+      const teeTimes = {}
+
+      eventDetails.forEach((row) => {
+        teeTimes[row["Event ID"]] = row["Tee Time"]?.trim()
+      })
+
+      setTeeTimesByEventId(teeTimes)
 
       // The Winner column is computed live from Match Entry (whichever
       // team has Placement 1) instead of the sheet's own Winner cell,
@@ -154,7 +165,7 @@ function Schedule() {
 
 
               <td>
-                {event["Tee Times"]}
+                {teeTimesByEventId[event["Event ID"]] || "TBD"}
               </td>
 
 
